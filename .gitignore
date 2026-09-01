@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# Build and generated analysis artifacts
+build/
+dist/
+*.egg-info/
+results/*
+!results/.gitkeep
+
+# Data policy: retain only tiny, permitted demo inputs
+data/raw/
+data/private/
+data/downloads/
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+
+# Editor and OS
+.vscode/
+.idea/
+.DS_Store
+
+# Secrets
+.env
+.env.*

@@ -1,0 +1,27 @@
+# Initial supported design: one bulk RNA-seq two-condition comparison.
+# Counts must be raw, non-negative integer gene-level counts.
+input:
+  counts: data/demo/counts.csv
+  metadata: data/demo/metadata.csv
+  gene_id_column: gene_id
+
+design:
+  condition_column: condition
+  reference_level: control
+  comparison_level: treated
+  # Batch support is planned for the Good portfolio version.
+  batch_column: null
+
+filtering:
+  # Final policy and defaults will be documented with the selected backend.
+  minimum_count: 10
+  minimum_samples: 2
+
+thresholds:
+  fdr: 0.05
+  absolute_log2_fold_change: 1.0
+
+output:
+  directory: results/demo
+  report_title: RNA-seq Explorer demo analysis
+  random_seed: 42
