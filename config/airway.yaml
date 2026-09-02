@@ -1,0 +1,25 @@
+# Official MVP dataset configuration.
+# Source inputs are exported by scripts/acquire_airway.R after provenance review.
+input:
+  counts: data/airway/counts.csv
+  metadata: data/airway/metadata.csv
+  gene_id_column: gene_id
+
+design:
+  condition_column: treatment
+  reference_level: untreated
+  comparison_level: dexamethasone
+  paired_or_block_column: cell_line
+
+filtering:
+  minimum_count: 10
+  minimum_samples: 2
+
+thresholds:
+  fdr: 0.05
+  absolute_log2_fold_change: 1.0
+
+output:
+  directory: results/airway
+  report_title: Airway smooth-muscle cells: dexamethasone versus untreated
+  random_seed: 42
