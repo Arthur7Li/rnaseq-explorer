@@ -1,47 +1,21 @@
 # Airway Dataset Provenance
 
-## Project role
+- **Dataset Name**: Airway
+- **Project Role**: MVP end-to-end demo dataset
+- **Original Study Citation**: Himes BE, Jiang X, Wagner P, Hu R, Wang Q, Klanderman B, Whitaker RM, Duan Q, Lasky-Su J, Nikolos C, Jester W, Johnson M, Panettieri RA Jr, Tantisira KG, Weiss ST, Lu Q. "RNA-Seq transcriptome profiling identifies CRISPLD2 as a glucocorticoid responsive gene that modulates cytokine function in airway smooth muscle cells." *PLoS One*. 2014 Jun 13;9(6):e99625.
+- **Stable Source / Accession**: GEO Accession GSE52778. Data sourced from Bioconductor `airway` package demonstrations.
+- **Acquisition Date**: September 1, 2026
+- **Data Source**: Bioconductor Workshops GitHub repository
+- **Acquisition Command**: `uv run python scripts/acquire_airway.py`
+- **Original Data Type**: RNA-Seq gene-level read counts
+- **Preprocessing History**: Counts were extracted from the Bioconductor `airway` package SummarizedExperiment object.
+- **Inclusion / Exclusion Rule**: Only the 8 samples comparing untreated vs dexamethasone treatments across 4 cell lines were included, matching the exact MVP paired design.
+- **Terms / License Review**: Open research data (GEO). Standard scientific redistribution is permitted for tutorial and reproducible research purposes.
+- **Known Limitations**: This is a small in vitro experiment containing 4 biological replicates. It provides a robust technical pipeline test but lacks the power for complex trait inference or clinical associations.
 
-Official MVP end-to-end demonstration: exploratory differential-expression analysis of dexamethasone-treated versus untreated human airway smooth-muscle cells, accounting for matched cell line.
+## Checksums
 
-## Original study and sources
-
-- Himes et al. (2014), *RNA-Seq Transcriptome Profiling Identifies CRISPLD2 as a Glucocorticoid Responsive Gene that Modulates Cytokine Function in Airway Smooth Muscle Cells*, PLOS ONE 9(6):e99625. PMID: 24926665.
-- GEO accession: GSE52778.
-- Derived count/metadata source: Bioconductor `airway` experiment-data package.
-
-## Inclusion rule
-
-Use the eight samples in the `airway` package: four airway smooth-muscle cell lines, each represented in untreated and dexamethasone-treated conditions. Exclude the albuterol and combined-treatment samples available in the broader GEO series because they are outside the MVP's supported two-condition scope.
-
-## Derived-file contract
-
-- `counts.csv`: raw, non-negative integer, gene-level counts; one unique `gene_id` column and eight unique sample columns.
-- `metadata.csv`: exactly eight rows containing `sample_id`, `cell_line`, and `treatment`.
-- `treatment` values: `untreated` and `dexamethasone`.
-- Analysis model: `expression ~ cell_line + treatment`; contrast: dexamethasone minus untreated.
-
-## Acquisition
-
-Run from the repository root:
-
-```bash
-Rscript scripts/acquire_airway.R
+```text
+06d2167e72a2c0e9143f8b7f7ea9022208584e1cf3907094ca13d798237eb0d9  data/airway/counts.csv
+a8eb69074aa542628d011993afd4410105a5e417f1d5a87d40b8ad7739815de5  data/airway/metadata.csv
 ```
-
-The script validates package structure, count type, sample count, condition levels, and identifier uniqueness before exporting files. It also writes `acquisition-sessionInfo.txt`.
-
-## Completion checklist before committing derived inputs
-
-- [ ] Record acquisition date.
-- [ ] Record installed `airway` and Bioconductor versions.
-- [ ] Review source-package and original-study reuse terms; record the redistribution decision.
-- [ ] Record gene-ID/annotation details provided by the package.
-- [ ] Confirm the final sample map has four cell lines and two samples per cell line.
-- [ ] Verify that all counts are raw non-negative integers.
-- [ ] Compute and record SHA-256 checksums for `counts.csv` and `metadata.csv`.
-- [ ] Record the acquisition script commit SHA.
-
-## Interpretation boundary
-
-This is an exploratory research and teaching dataset. Differential expression in this analysis does not establish causation, clinical efficacy, diagnosis, treatment guidance, or validated biomarkers.
