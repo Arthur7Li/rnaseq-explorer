@@ -74,11 +74,15 @@ def analyze(
         typer.echo(f"Successfully validated {counts_df.shape[0]} genes across {counts_df.shape[1]} samples.")
         
         typer.echo("Running differential expression analysis...")
-        _norm_counts, results = run_deseq2(counts_df, metadata_df, cfg)
+        norm_counts, results = run_deseq2(counts_df, metadata_df, cfg)
+        
+        from rnax.pipeline.report import generate_report
+        
+        typer.echo("Generating report and plots...")
+        generate_report(cfg, counts_df, metadata_df, norm_counts, results)
         
         typer.echo(f"Differential expression complete. {results.shape[0]} genes analyzed.")
-        typer.echo(f"Output will be saved to: {cfg.output.directory}")
-        typer.echo("Pipeline execution is not yet fully implemented.")
+        typer.echo(f"Output saved to: {cfg.output.directory}")
         
     except FileNotFoundError as e:
         typer.secho(f"Error: {e}", fg=typer.colors.RED, err=True)
