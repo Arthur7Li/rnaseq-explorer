@@ -18,7 +18,9 @@ def test_analyze_help():
     assert result.exit_code == 0
     assert "Run the exploratory RNA-seq differential expression workflow" in strip_ansi(result.output)
 
-def test_analyze_with_valid_config(valid_config_file):
+def test_analyze_with_valid_config(mocker, valid_config_file):
+    import pandas as pd
+    mocker.patch("rnax.pipeline.deseq.run_deseq2", return_value=(pd.DataFrame(), pd.DataFrame([1, 2])))
     result = runner.invoke(app, ["analyze", "--config", str(valid_config_file)])
     assert result.exit_code == 0
     assert "Successfully parsed configuration" in strip_ansi(result.output)
