@@ -17,12 +17,12 @@ def ingest_data(config: AnalysisConfig) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     try:
         counts_df = pd.read_csv(config.input.counts)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         raise ValueError(f"Failed to read counts file {config.input.counts}: {e}") from e
 
     try:
         metadata_df = pd.read_csv(config.input.metadata)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         raise ValueError(f"Failed to read metadata file {config.input.metadata}: {e}") from e
 
     # Validate counts
