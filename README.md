@@ -57,8 +57,16 @@ It is a research- and teaching-support tool for generating hypotheses. It is **n
 
 ## Example workflow
 
+Install dependencies using [uv](https://github.com/astral-sh/uv):
+
 ```bash
-rnax analyze \
+uv sync
+```
+
+Run the pipeline:
+
+```bash
+uv run rnax analyze \
   --counts data/counts.csv \
   --metadata data/metadata.csv \
   --config config/analysis.yaml \
