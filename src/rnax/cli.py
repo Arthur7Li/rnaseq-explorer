@@ -52,6 +52,10 @@ def analyze(
     """
     Run the exploratory RNA-seq differential expression workflow.
     """
+    from pandera.errors import SchemaError
+
+    from rnax.pipeline.ingest import ingest_data
+    
     try:
         cfg = AnalysisConfig.from_yaml(config)
         
@@ -64,8 +68,12 @@ def analyze(
             cfg.output.directory = output
             
         typer.echo(f"Successfully parsed configuration from {config}")
+        
+        counts_df, _metadata_df = ingest_data(cfg)
+        typer.echo(f"Successfully validated {counts_df.shape[0]} genes across {counts_df.shape[1]} samples.")
+        
         typer.echo(f"Output will be saved to: {cfg.output.directory}")
-        typer.echo("Pipeline execution is not yet implemented.")
+        typer.echo("Pipeline execution is not yet fully implemented.")
         
     except FileNotFoundError as e:
         typer.secho(f"Error: {e}", fg=typer.colors.RED, err=True)
@@ -73,6 +81,14 @@ def analyze(
     except ValidationError as e:
         typer.secho(f"Configuration validation error in {config}:", fg=typer.colors.RED, err=True)
         typer.echo(e, err=True)
+        raise typer.Exit(code=1)
+    except SchemaError as e:
+        typer.secho("Data validation error:", fg=typer.colors.RED, err=True)
+        typer.echo(str(e), err=True)
+        raise typer.Exit(code=1)
+    except ValueError as e:
+        typer.secho("Data error:", fg=typer.colors.RED, err=True)
+        typer.echo(str(e), err=True)
         raise typer.Exit(code=1)
 
 if __name__ == "__main__":
