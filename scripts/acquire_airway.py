@@ -8,7 +8,6 @@ to data/airway/.
 """
 import argparse
 import logging
-import urllib.request
 from pathlib import Path
 
 import pandas as pd
@@ -23,20 +22,22 @@ def main():
     parser.add_argument("--outdir", default="data/airway", help="Output directory")
     args = parser.parse_args()
 
+    logger = logging.getLogger(__name__)
+    
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     
     counts_path = outdir / "counts.csv"
     metadata_path = outdir / "metadata.csv"
 
-    logging.info(f"Downloading counts from {COUNTS_URL}")
+    logger.info(f"Downloading counts from {COUNTS_URL}")
     counts_df = pd.read_csv(COUNTS_URL)
     # The first column is named "Gene", we rename it to "gene_id"
     counts_df = counts_df.rename(columns={"Gene": "gene_id"})
     counts_df.to_csv(counts_path, index=False)
-    logging.info(f"Saved counts to {counts_path} ({counts_df.shape[0]} genes, {counts_df.shape[1]-1} samples)")
+    logger.info(f"Saved counts to {counts_path} ({counts_df.shape[0]} genes, {counts_df.shape[1]-1} samples)")
 
-    logging.info(f"Downloading metadata from {METADATA_URL}")
+    logger.info(f"Downloading metadata from {METADATA_URL}")
     metadata_df = pd.read_csv(METADATA_URL)
     # The first column is unnamed and holds the sample ID (SRR...)
     metadata_df = metadata_df.rename(columns={
@@ -54,9 +55,9 @@ def main():
     })
     
     metadata_df.to_csv(metadata_path, index=False)
-    logging.info(f"Saved metadata to {metadata_path} ({metadata_df.shape[0]} samples)")
+    logger.info(f"Saved metadata to {metadata_path} ({metadata_df.shape[0]} samples)")
     
-    logging.info("Airway dataset successfully acquired.")
+    logger.info("Airway dataset successfully acquired.")
 
 if __name__ == "__main__":
     main()
