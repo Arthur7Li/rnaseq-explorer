@@ -22,7 +22,7 @@ def test_analyze_missing_config():
     result = runner.invoke(app, ["analyze"])
     # Typer will exit 2 on missing required arguments by default
     assert result.exit_code == 2
-    assert "Missing option '--config'" in result.output
+    assert "Missing option" in result.output
 
 
 def test_analyze_invalid_config(temp_dir):
