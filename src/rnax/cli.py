@@ -54,6 +54,7 @@ def analyze(
     """
     from pandera.errors import SchemaError
 
+    from rnax.pipeline.deseq import run_deseq2
     from rnax.pipeline.ingest import ingest_data
     
     try:
@@ -69,9 +70,13 @@ def analyze(
             
         typer.echo(f"Successfully parsed configuration from {config}")
         
-        counts_df, _metadata_df = ingest_data(cfg)
+        counts_df, metadata_df = ingest_data(cfg)
         typer.echo(f"Successfully validated {counts_df.shape[0]} genes across {counts_df.shape[1]} samples.")
         
+        typer.echo("Running differential expression analysis...")
+        _norm_counts, results = run_deseq2(counts_df, metadata_df, cfg)
+        
+        typer.echo(f"Differential expression complete. {results.shape[0]} genes analyzed.")
         typer.echo(f"Output will be saved to: {cfg.output.directory}")
         typer.echo("Pipeline execution is not yet fully implemented.")
         
