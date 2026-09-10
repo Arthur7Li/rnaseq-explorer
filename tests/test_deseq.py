@@ -37,18 +37,25 @@ def mock_config():
     return config
 
 
-def test_filter_low_counts(sample_counts):
+def test_filter_low_counts(sample_counts, caplog):
     # min_count=5, min_samples=2
-    filtered = filter_low_counts(sample_counts, min_count=5, min_samples=2)
+    with caplog.at_level("INFO"):
+        res = filter_low_counts(sample_counts, min_count=5, min_samples=2)
     # gene1: all >=5 -> keep
     # gene2: max is 1 -> drop
     # gene3: all 5 -> keep
     # gene4: all >=5 -> keep
+    filtered = res.filtered_counts
     assert "gene2" not in filtered.index
     assert "gene1" in filtered.index
     assert "gene3" in filtered.index
     assert "gene4" in filtered.index
     assert filtered.shape == (3, 4)
+    assert res.genes_before == 4
+    assert res.genes_after == 3
+    assert res.min_count == 5
+    assert res.min_samples == 2
+    assert "Filtering: 4 genes → 3 genes (kept genes with >= 5 counts in >= 2 samples)" in caplog.text
 
 
 def test_run_deseq2_mocked(mocker, sample_counts, sample_metadata, mock_config):
@@ -66,7 +73,7 @@ def test_run_deseq2_mocked(mocker, sample_counts, sample_metadata, mock_config):
         "padj": [0.01, 0.05, 0.99]
     }, index=["gene1", "gene3", "gene4"])
     
-    norm_counts, results = run_deseq2(sample_counts, sample_metadata, mock_config)
+    norm_counts, results, filtering = run_deseq2(sample_counts, sample_metadata, mock_config)
     
     # Assert DeseqDataSet was initialized with correct params
     mock_dds.assert_called_once()
@@ -89,3 +96,5 @@ def test_run_deseq2_mocked(mocker, sample_counts, sample_metadata, mock_config):
     assert norm_counts.shape == (3, 4)
     assert list(norm_counts.columns) == ["sample1", "sample2", "sample3", "sample4"]
     assert results.shape == (3, 2)
+    assert filtering.genes_before == 4
+    assert filtering.genes_after == 3

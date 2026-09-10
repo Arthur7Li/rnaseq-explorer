@@ -77,12 +77,12 @@ def analyze(
         manifest = build_manifest(cfg, config)
         
         typer.echo("Running differential expression analysis...")
-        norm_counts, results = run_deseq2(counts_df, metadata_df, cfg)
+        norm_counts, results, filtering = run_deseq2(counts_df, metadata_df, cfg)
         
         from rnax.pipeline.report import generate_report
         
         typer.echo("Generating report and plots...")
-        generate_report(cfg, counts_df, metadata_df, norm_counts, results, manifest)
+        generate_report(cfg, counts_df, metadata_df, norm_counts, results, manifest, filtering)
         
         typer.echo(f"Differential expression complete. {results.shape[0]} genes analyzed.")
         typer.echo(f"Output saved to: {cfg.output.directory}")

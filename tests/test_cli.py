@@ -20,7 +20,8 @@ def test_analyze_help():
 
 def test_analyze_with_valid_config(mocker, valid_config_file):
     import pandas as pd
-    mocker.patch("rnax.pipeline.deseq.run_deseq2", return_value=(pd.DataFrame(), pd.DataFrame([1, 2])))
+    mock_filtering = mocker.MagicMock()
+    mocker.patch("rnax.pipeline.deseq.run_deseq2", return_value=(pd.DataFrame(), pd.DataFrame([1, 2]), mock_filtering))
     mocker.patch("rnax.pipeline.report.generate_report")
     result = runner.invoke(app, ["analyze", "--config", str(valid_config_file)])
     assert result.exit_code == 0

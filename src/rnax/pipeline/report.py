@@ -5,6 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from rnax.config import AnalysisConfig
 from rnax.manifest import ReproducibilityManifest
+from rnax.pipeline.deseq import FilteringResult
 from rnax.pipeline.plots import (
     plot_library_sizes,
     plot_ma,
@@ -21,7 +22,8 @@ def generate_report(
     metadata: pd.DataFrame,
     norm_counts: pd.DataFrame,
     results_df: pd.DataFrame,
-    manifest: ReproducibilityManifest
+    manifest: ReproducibilityManifest,
+    filtering: FilteringResult
 ) -> None:
     """
     Generate plots, export CSVs, and render the static HTML report.
@@ -102,7 +104,8 @@ def generate_report(
         total_genes=total_genes,
         sig_up=sig_up,
         sig_down=sig_down,
-        manifest=manifest
+        manifest=manifest,
+        filtering=filtering
     )
     
     report_path = out_dir / "report.html"
