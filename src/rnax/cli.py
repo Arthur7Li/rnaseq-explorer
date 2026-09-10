@@ -9,7 +9,7 @@ from rnax.config import AnalysisConfig
 app = typer.Typer(help="RNA-seq Explorer: Reproducible bulk RNA-seq differential-expression analysis.")
 
 @app.callback()
-def main():
+def main() -> None:
     """RNA-seq Explorer: Reproducible bulk RNA-seq differential-expression analysis."""
 
 @app.command()
@@ -48,7 +48,7 @@ def analyze(
             help="Path to the output directory. Overrides config if provided.",
         )
     ] = None,
-):
+) -> None:
     """
     Run the exploratory RNA-seq differential expression workflow.
     """

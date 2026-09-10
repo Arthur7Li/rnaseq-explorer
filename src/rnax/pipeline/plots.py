@@ -5,7 +5,7 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 
 
-def plot_library_sizes(counts_df: pd.DataFrame, metadata_df: pd.DataFrame, condition_col: str, output_path: str):
+def plot_library_sizes(counts_df: pd.DataFrame, metadata_df: pd.DataFrame, condition_col: str, output_path: str) -> None:
     """
     Plot library sizes (total reads per sample).
     """
@@ -25,7 +25,7 @@ def plot_library_sizes(counts_df: pd.DataFrame, metadata_df: pd.DataFrame, condi
     plt.close()
 
 
-def plot_pca(normalized_counts: pd.DataFrame, metadata_df: pd.DataFrame, condition_col: str, output_path: str):
+def plot_pca(normalized_counts: pd.DataFrame, metadata_df: pd.DataFrame, condition_col: str, output_path: str) -> None:
     """
     Plot PCA of log1p transformed normalized counts.
     normalized_counts: genes x samples
@@ -57,7 +57,7 @@ def plot_pca(normalized_counts: pd.DataFrame, metadata_df: pd.DataFrame, conditi
     plt.close()
 
 
-def plot_volcano(results_df: pd.DataFrame, fdr_thresh: float, log2fc_thresh: float, output_path: str):
+def plot_volcano(results_df: pd.DataFrame, fdr_thresh: float, log2fc_thresh: float, output_path: str) -> None:
     """
     Plot a volcano plot highlighting significant genes.
     """
