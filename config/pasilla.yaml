@@ -1,0 +1,22 @@
+input:
+  counts: "data/pasilla/counts.csv"
+  metadata: "data/pasilla/metadata.csv"
+  gene_id_column: "gene_id"
+
+design:
+  condition_column: "condition"
+  reference_level: "untreated"
+  comparison_level: "treated"
+
+filtering:
+  minimum_count: 10
+  minimum_samples: 2
+
+thresholds:
+  fdr: 0.05
+  absolute_log2_fold_change: 1.0
+  top_n_genes: 30
+
+output:
+  directory: "results/pasilla"
+  report_title: "Pasilla Knockdown vs Control RNA-seq Analysis"
