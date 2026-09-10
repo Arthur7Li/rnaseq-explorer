@@ -58,24 +58,43 @@
     </div>
 
     <h2>Quality Control</h2>
-    <div class="grid">
-        <div class="img-container">
+    <div class="img-container" style="max-width: 800px; margin: 0 auto; display: flex; justify-content: space-around; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px; margin: 10px;">
             <h3>Library Sizes</h3>
-            <img src="library_sizes.png" alt="Library Sizes Plot">
-            <p><small>Total reads per sample before normalization.</small></p>
+            <img src="library_sizes.png" alt="Library Sizes">
+            <p><small>Total number of reads assigned to genes per sample.</small></p>
         </div>
-        <div class="img-container">
-            <h3>PCA</h3>
+        <div style="flex: 1; min-width: 300px; margin: 10px;">
+            <h3>Principal Component Analysis</h3>
             <img src="pca.png" alt="PCA Plot">
-            <p><small>Principal Component Analysis on log1p-transformed normalized counts.</small></p>
+            <p><small>PCA on log1p-transformed normalized counts to identify sample clustering.</small></p>
         </div>
+    </div>
+    
+    <div class="img-container" style="max-width: 600px; margin: 0 auto;">
+        <h3>Sample Distances</h3>
+        <img src="sample_distances.png" alt="Sample Distances Heatmap">
+        <p><small>Samples that are more similar cluster together. This does not establish causation.</small></p>
     </div>
 
     <h2>Differential Expression Results</h2>
+    <div class="img-container" style="max-width: 800px; margin: 0 auto; display: flex; justify-content: space-around; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px; margin: 10px;">
+            <h3>Volcano Plot</h3>
+            <img src="volcano.png" alt="Volcano Plot">
+            <p><small>Genes passing both FDR and Fold Change thresholds are highlighted.</small></p>
+        </div>
+        <div style="flex: 1; min-width: 300px; margin: 10px;">
+            <h3>MA Plot</h3>
+            <img src="ma_plot.png" alt="MA Plot">
+            <p><small>Genes with both high expression and large fold change are more likely to be biologically meaningful. Statistical significance alone does not imply biological importance.</small></p>
+        </div>
+    </div>
+    
     <div class="img-container" style="max-width: 600px; margin: 0 auto;">
-        <h3>Volcano Plot</h3>
-        <img src="volcano.png" alt="Volcano Plot">
-        <p><small>Genes passing both FDR and Fold Change thresholds are highlighted.</small></p>
+        <h3>Top DE Genes Heatmap</h3>
+        <img src="top_genes_heatmap.png" alt="Top DE Genes Heatmap">
+        <p><small>Expression patterns of the most statistically significant genes. Z-scoring highlights relative differences, not absolute expression levels.</small></p>
     </div>
 
     <div class="metadata">

@@ -24,6 +24,7 @@ class FilteringConfig(BaseModel):
 class ThresholdsConfig(BaseModel):
     fdr: float = Field(default=0.05, ge=0.0, le=1.0)
     absolute_log2_fold_change: float = Field(default=1.0, ge=0.0)
+    top_n_genes: int = Field(default=30, ge=1)
 
 
 class OutputConfig(BaseModel):

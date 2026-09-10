@@ -5,7 +5,14 @@ from jinja2 import Environment, FileSystemLoader
 
 from rnax.config import AnalysisConfig
 from rnax.manifest import ReproducibilityManifest
-from rnax.pipeline.plots import plot_library_sizes, plot_pca, plot_volcano
+from rnax.pipeline.plots import (
+    plot_library_sizes, 
+    plot_pca, 
+    plot_volcano, 
+    plot_sample_distances,
+    plot_ma,
+    plot_top_genes_heatmap
+)
 
 
 def generate_report(
@@ -49,6 +56,31 @@ def generate_report(
         config.thresholds.fdr, 
         config.thresholds.absolute_log2_fold_change, 
         str(out_dir / "volcano.png")
+    )
+    
+    plot_sample_distances(
+        norm_counts, 
+        metadata, 
+        config.design.condition_column, 
+        config.design.paired_or_block_column, 
+        str(out_dir / "sample_distances.png")
+    )
+    
+    plot_ma(
+        results_df, 
+        config.thresholds.fdr, 
+        config.thresholds.absolute_log2_fold_change, 
+        str(out_dir / "ma_plot.png")
+    )
+    
+    plot_top_genes_heatmap(
+        norm_counts, 
+        results_df, 
+        metadata, 
+        config.design.condition_column, 
+        config.design.paired_or_block_column, 
+        config.thresholds.top_n_genes, 
+        str(out_dir / "top_genes_heatmap.png")
     )
     
     # Calculate sig stats

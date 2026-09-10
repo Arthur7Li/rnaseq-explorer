@@ -1,16 +1,21 @@
 ## Summary
 
-This PR executes **Phase 2: Reproducibility Manifest** from the Good Portfolio Version implementation plan.
+This PR executes **Phase 3: New Visualizations** from the Good Portfolio Version implementation plan.
 
 ## Changes
-- **`manifest.py`**: Added a new module to calculate file hashes (SHA-256), retrieve the active git commit, detect OS/platform information, and dynamically check the installed versions of key bioinformatics libraries (`pydeseq2`, `pandas`, `scikit-learn`, etc.).
-- **`cli.py`**: Intercepts the fully validated `config` at the start of the pipeline and calls `build_manifest()`.
-- **`report.py` & `report.html.j2`**: Re-wires the reporting layer to accept the `ReproducibilityManifest` and injects it as a new structured table into the static HTML report.
-- **Tests**: Created `test_manifest.py` to ensure `git` subprocesses fail gracefully when absent, and updated `test_report.py` to inject mock manifests.
+- **`plots.py`**:
+  - Implemented `plot_sample_distances()`: Computes pairwise Euclidean distances on log1p-normalized counts, plotted as a clustered heatmap with condition/block annotations using `seaborn.clustermap`.
+  - Implemented `plot_ma()`: Plots log2FoldChange against log10(baseMean), highlighting significant genes with the same color palette as the volcano plot.
+  - Implemented `plot_top_genes_heatmap()`: Selects the top `n_top` genes by ascending `padj`, computes z-scores per gene across samples using `scipy.stats.zscore`, and generates a clustered heatmap (rows clustered, columns ordered by condition).
+- **`config.py`**: Added `top_n_genes` (default: 30) to `ThresholdsConfig`.
+- **`report.py` & `report.html.j2`**: Wired the new plots into the pipeline and embedded them in the HTML report with interpretive captions.
+- **`docs/DECISIONS.md`**: Added decision `D-6` for the new `top_n_genes` config parameter.
+- **Tests**: Added tests for all three new plot functions and updated `test_report.py` mocks.
 
 ## Test evidence
-- `uv run pytest` runs and passes (31 tests).
-- Mypy strictly validates the new `ReproducibilityManifest` typing and its passthrough.
+- `uv run pytest` runs and passes (36 tests).
+- `uv run mypy src/` strictly validates the new plotting code.
+- `uv run ruff check .` is clean.
 
 ## Definition of Done
 - [x] All acceptance criteria met, no silent scope reduction
