@@ -94,3 +94,74 @@ def test_pasilla_integration(setup_pasilla_test_data):
     assert "Integration Test Title" in html
     assert "Pre-filtering Summary" in html
     assert "Threshold Interpretation" in html
+
+@pytest.fixture(scope="module")
+def setup_bottomly_test_data(tmp_path_factory):
+    temp_dir = tmp_path_factory.mktemp("bottomly_integration")
+    out_dir = temp_dir / "results"
+    
+    config_path = temp_dir / "bottomly_test.yaml"
+    import yaml
+    
+    config_content = {
+        "input": {
+            "counts": "data/bottomly/counts.csv",
+            "metadata": "data/bottomly/metadata.csv",
+            "gene_id_column": "gene_id"
+        },
+        "design": {
+            "condition_column": "strain",
+            "reference_level": "C57BL_6J",
+            "comparison_level": "DBA_2J"
+        },
+        "filtering": {
+            "minimum_count": 10,
+            "minimum_samples": 3
+        },
+        "thresholds": {
+            "fdr": 0.05,
+            "absolute_log2_fold_change": 1.0,
+            "top_n_genes": 30
+        },
+        "output": {
+            "directory": str(out_dir),
+            "report_title": "Bottomly Integration Test Title"
+        }
+    }
+    
+    with open(config_path, "w") as f:
+        yaml.dump(config_content, f)
+        
+    return config_path, out_dir
+
+
+@pytest.mark.slow
+def test_bottomly_integration(setup_bottomly_test_data):
+    if not Path("data/bottomly/counts.csv").exists():
+        pytest.skip("Bottomly test data not found. Run scripts/acquire_bottomly.py first.")
+        
+    config_path, out_dir = setup_bottomly_test_data
+    
+    runner = CliRunner()
+    result = runner.invoke(app, ["analyze", "--config", str(config_path)])
+    
+    assert result.exit_code == 0
+    assert "Successfully validated" in result.output
+    assert "Differential expression complete" in result.output
+    
+    assert (out_dir / "results.csv").exists()
+    assert (out_dir / "normalized_counts.csv").exists()
+    
+    assert (out_dir / "library_sizes.png").exists()
+    assert (out_dir / "pca.png").exists()
+    assert (out_dir / "volcano.png").exists()
+    assert (out_dir / "sample_distances.png").exists()
+    assert (out_dir / "ma_plot.png").exists()
+    assert (out_dir / "top_genes_heatmap.png").exists()
+    
+    report_path = out_dir / "report.html"
+    assert report_path.exists()
+    
+    html = report_path.read_text()
+    assert "Bottomly Integration Test Title" in html
+    assert "Pre-filtering Summary" in html
