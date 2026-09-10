@@ -59,7 +59,16 @@ def test_generate_report(mocker, mock_config, dummy_dfs):
         command="rnax analyze"
     )
     
-    generate_report(mock_config, raw_counts, metadata, norm_counts, results, mock_manifest)
+    from rnax.pipeline.deseq import FilteringResult
+    mock_filtering = FilteringResult(
+        filtered_counts=raw_counts,
+        genes_before=100,
+        genes_after=80,
+        min_count=10,
+        min_samples=2,
+    )
+    
+    generate_report(mock_config, raw_counts, metadata, norm_counts, results, mock_manifest, mock_filtering)
     
     out_dir = Path(mock_config.output.directory)
     
@@ -77,3 +86,9 @@ def test_generate_report(mocker, mock_config, dummy_dfs):
     assert "clinical, diagnostic" in html
     assert "condition" in html
     assert "batch" in html
+    assert "Pre-filtering Summary" in html
+    assert "Genes before filtering:</strong> 100" in html
+    assert "Genes after filtering:</strong> 80" in html
+    assert "Genes removed:</strong> 20" in html
+    assert "Threshold Interpretation" in html
+    assert "conventional cutoffs, not biological truths" in html

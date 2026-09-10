@@ -58,6 +58,16 @@
     </div>
 
     <h2>Quality Control</h2>
+    <div class="metadata" style="margin-bottom: 1.5rem;">
+        <h3>Pre-filtering Summary</h3>
+        <p>
+            <strong>Genes before filtering:</strong> {{ filtering.genes_before }}<br>
+            <strong>Genes after filtering:</strong> {{ filtering.genes_after }}<br>
+            <strong>Genes removed:</strong> {{ filtering.genes_before - filtering.genes_after }}<br>
+            <strong>Rule:</strong> kept genes with &ge; {{ filtering.min_count }} counts in &ge; {{ filtering.min_samples }} samples
+        </p>
+    </div>
+
     <div class="img-container" style="max-width: 800px; margin: 0 auto; display: flex; justify-content: space-around; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 300px; margin: 10px;">
             <h3>Library Sizes</h3>
@@ -78,6 +88,9 @@
     </div>
 
     <h2>Differential Expression Results</h2>
+    <div class="alert" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba;">
+        <strong>Threshold Interpretation:</strong> FDR and fold-change thresholds are conventional cutoffs, not biological truths. A gene failing these thresholds may still be biologically relevant, and a gene passing them requires independent validation.
+    </div>
     <div class="img-container" style="max-width: 800px; margin: 0 auto; display: flex; justify-content: space-around; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 300px; margin: 10px;">
             <h3>Volcano Plot</h3>

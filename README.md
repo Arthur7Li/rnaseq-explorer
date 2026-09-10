@@ -37,5 +37,16 @@ open results/airway/report.html
 - **Robust Statistics**: Incorporates `pydeseq2` for native Python standard Wald tests, removing external R dependencies.
 - **Automated Reporting**: Produces Jinja2 static HTML reports along with publication-ready Volcano, PCA, and Library Size plots.
 
+## Filtering Defaults & Customization
+To eliminate uninformative low-count noise and reduce multiple-testing penalties, genes are pre-filtered before differential expression:
+- **Default Rule**: Retains genes with &ge; 10 counts in &ge; 2 samples.
+- **Customization**: Filtering thresholds can be modified in your YAML configuration:
+  ```yaml
+  filtering:
+    minimum_count: 10      # Minimum reads required per sample
+    minimum_samples: 2     # Minimum number of samples meeting minimum_count
+  ```
+All pre-filtering counts (genes before, genes after, genes dropped) are logged during execution and summarized transparently in the output report.
+
 ## Project Guardrails
 Please see [AGENTS.md](AGENTS.md) and `.agent/GUARDRAILS.md` for strict data handling and operational constraints. No raw FASTQ processing, FPKM manipulation, or uncontrolled data commits are permitted in this repository.
