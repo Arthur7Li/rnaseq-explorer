@@ -57,3 +57,34 @@ jobs:
           else
             echo "No forbidden raw sequencing files found."
           fi
+
+  smoke-test:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Smoke test (Pasilla)
+        run: |
+          uv run rnax analyze --config config/pasilla.yaml
+          test -f results/pasilla/report.html
+          test -f results/pasilla/results.csv
+          test -f results/pasilla/normalized_counts.csv
+          test -f results/pasilla/library_sizes.png
+          test -f results/pasilla/pca.png
+          test -f results/pasilla/volcano.png
+          test -f results/pasilla/sample_distances.png
+          test -f results/pasilla/ma_plot.png
+          test -f results/pasilla/top_genes_heatmap.png
+          grep -q "LIMITATION NOTICE" results/pasilla/report.html
+
