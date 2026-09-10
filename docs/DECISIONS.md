@@ -61,3 +61,12 @@ Every entry uses this template:
 - Decision: Generate a self-contained, browser-openable static HTML report via Jinja2 as the official MVP deliverable, alongside machine-readable CSV/JSON outputs. Markdown may be used for developer/debug output but is not the official report format.
 - Alternatives considered: rendered Markdown only (rejected as the primary format — weaker presentation for figures/tables); an interactive web dashboard (rejected for MVP — unnecessary complexity and scope creep).
 - Consequences: The report must include provenance references, the design model and contrast, validation summary, QC figures with plain-language observations, DE results, a reproducibility manifest, and explicit limitations.
+
+## D-6: Add top_n_genes config parameter
+
+- Date: 2026-09-10
+- Status: accepted
+- Context: The top DE genes heatmap requires a configurable parameter for how many genes to display.
+- Decision: Add `top_n_genes` as a new optional field in `ThresholdsConfig` with a default of 30.
+- Alternatives considered: Hardcoding 30 (rejected — reduces user flexibility for different datasets).
+- Consequences: Allows the top genes heatmap to be generated dynamically based on user preference while maintaining a sensible default.

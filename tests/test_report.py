@@ -17,7 +17,11 @@ def mock_config(tmp_path):
         "reference_level": "A",
         "comparison_level": "B"
     })()
-    config.thresholds = type("obj", (object,), {"fdr": 0.05, "absolute_log2_fold_change": 1.0})()
+    config.thresholds = type("obj", (object,), {
+        "fdr": 0.05,
+        "absolute_log2_fold_change": 1.0,
+        "top_n_genes": 30
+    })()
     return config
 
 
@@ -36,6 +40,9 @@ def test_generate_report(mocker, mock_config, dummy_dfs):
     mocker.patch("rnax.pipeline.report.plot_library_sizes")
     mocker.patch("rnax.pipeline.report.plot_pca")
     mocker.patch("rnax.pipeline.report.plot_volcano")
+    mocker.patch("rnax.pipeline.report.plot_sample_distances")
+    mocker.patch("rnax.pipeline.report.plot_ma")
+    mocker.patch("rnax.pipeline.report.plot_top_genes_heatmap")
     
     from rnax.manifest import ReproducibilityManifest
     mock_manifest = ReproducibilityManifest(
