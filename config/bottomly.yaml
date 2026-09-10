@@ -1,0 +1,22 @@
+input:
+  counts: "data/bottomly/counts.csv"
+  metadata: "data/bottomly/metadata.csv"
+  gene_id_column: "gene_id"
+
+design:
+  condition_column: "strain"
+  reference_level: "C57BL_6J"
+  comparison_level: "DBA_2J"
+
+filtering:
+  minimum_count: 10
+  minimum_samples: 3
+
+thresholds:
+  fdr: 0.05
+  absolute_log2_fold_change: 1.0
+  top_n_genes: 30
+
+output:
+  directory: "results/bottomly"
+  report_title: "Bottomly Validation: DBA/2J vs C57BL/6J Mouse Striatum"
