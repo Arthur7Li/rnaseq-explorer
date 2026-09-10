@@ -103,6 +103,7 @@ def plot_volcano(results_df: pd.DataFrame, fdr_thresh: float, log2fc_thresh: flo
 from scipy.spatial.distance import pdist, squareform
 from scipy.stats import zscore
 
+
 def plot_sample_distances(normalized_counts: pd.DataFrame, metadata_df: pd.DataFrame, condition_col: str, block_col: str | None, output_path: str) -> None:
     """
     Plot Sample Distance Matrix (Euclidean, log1p-normalized).

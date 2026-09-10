@@ -6,12 +6,12 @@ from jinja2 import Environment, FileSystemLoader
 from rnax.config import AnalysisConfig
 from rnax.manifest import ReproducibilityManifest
 from rnax.pipeline.plots import (
-    plot_library_sizes, 
-    plot_pca, 
-    plot_volcano, 
-    plot_sample_distances,
+    plot_library_sizes,
     plot_ma,
-    plot_top_genes_heatmap
+    plot_pca,
+    plot_sample_distances,
+    plot_top_genes_heatmap,
+    plot_volcano,
 )
 
 
