@@ -37,7 +37,22 @@ def test_generate_report(mocker, mock_config, dummy_dfs):
     mocker.patch("rnax.pipeline.report.plot_pca")
     mocker.patch("rnax.pipeline.report.plot_volcano")
     
-    generate_report(mock_config, raw_counts, metadata, norm_counts, results)
+    from rnax.manifest import ReproducibilityManifest
+    mock_manifest = ReproducibilityManifest(
+        rnax_version="0.1.0",
+        python_version="3.13",
+        platform="Darwin",
+        packages={"pandas": "1.0"},
+        git_commit="abc",
+        config_sha256="config_hash",
+        counts_sha256="counts_hash",
+        metadata_sha256="meta_hash",
+        timestamp="2026-09-02T00:00:00Z",
+        random_seed=42,
+        command="rnax analyze"
+    )
+    
+    generate_report(mock_config, raw_counts, metadata, norm_counts, results, mock_manifest)
     
     out_dir = Path(mock_config.output.directory)
     

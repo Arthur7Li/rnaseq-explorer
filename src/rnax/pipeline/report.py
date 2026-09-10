@@ -4,6 +4,7 @@ import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
 from rnax.config import AnalysisConfig
+from rnax.manifest import ReproducibilityManifest
 from rnax.pipeline.plots import plot_library_sizes, plot_pca, plot_volcano
 
 
@@ -12,7 +13,8 @@ def generate_report(
     raw_counts: pd.DataFrame,
     metadata: pd.DataFrame,
     norm_counts: pd.DataFrame,
-    results_df: pd.DataFrame
+    results_df: pd.DataFrame,
+    manifest: ReproducibilityManifest
 ) -> None:
     """
     Generate plots, export CSVs, and render the static HTML report.
@@ -67,7 +69,8 @@ def generate_report(
         config=config,
         total_genes=total_genes,
         sig_up=sig_up,
-        sig_down=sig_down
+        sig_down=sig_down,
+        manifest=manifest
     )
     
     report_path = out_dir / "report.html"
