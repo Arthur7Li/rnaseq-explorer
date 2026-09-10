@@ -13,7 +13,7 @@ def generate_report(
     metadata: pd.DataFrame,
     norm_counts: pd.DataFrame,
     results_df: pd.DataFrame
-):
+) -> None:
     """
     Generate plots, export CSVs, and render the static HTML report.
     """

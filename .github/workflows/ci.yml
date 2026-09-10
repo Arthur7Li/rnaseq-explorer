@@ -34,10 +34,18 @@ jobs:
             echo "No pyproject.toml yet; skipping lint."
           fi
 
+      - name: Type check
+        run: |
+          if [ -f pyproject.toml ]; then
+            uv run mypy src/
+          else
+            echo "No pyproject.toml yet; skipping mypy."
+          fi
+
       - name: Test
         run: |
           if [ -f pyproject.toml ]; then
-            uv run pytest
+            uv run pytest --cov=rnax --cov-report=term-missing
           else
             echo "No pyproject.toml yet; skipping tests."
           fi

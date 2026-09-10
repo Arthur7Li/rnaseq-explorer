@@ -1,27 +1,56 @@
+# RNA-seq Explorer configuration file
 # Initial supported design: one bulk RNA-seq two-condition comparison.
 # Counts must be raw, non-negative integer gene-level counts.
+
 input:
+  # Path to raw counts CSV. Rows = genes, Columns = samples.
   counts: data/demo/counts.csv
+  
+  # Path to metadata CSV. Must contain one row per sample.
   metadata: data/demo/metadata.csv
+  
+  # Column name in counts.csv containing unique gene identifiers.
   gene_id_column: gene_id
 
 design:
+  # Column name in metadata.csv defining the biological condition (must have exactly 2 levels).
   condition_column: condition
+  
+  # The baseline level of the condition (e.g., 'control', 'untreated').
   reference_level: control
+  
+  # The experimental level of the condition (e.g., 'treated', 'knockdown').
   comparison_level: treated
-  # Batch support is planned for the Good portfolio version.
-  batch_column: null
+  
+  # Optional blocking covariate for paired or batch designs (e.g., 'cell_line', 'patient_id').
+  # Set to null if not using a blocking covariate.
+  paired_or_block_column: null
 
 filtering:
-  # Final policy and defaults will be documented with the selected backend.
+  # Minimum total counts required for a gene across 'minimum_samples' to be retained.
+  # Default: 10
   minimum_count: 10
+  
+  # Minimum number of samples that must meet the 'minimum_count' threshold.
+  # Default: 2
   minimum_samples: 2
 
 thresholds:
+  # False Discovery Rate (adjusted p-value) cutoff for calling significant genes.
+  # Default: 0.05
   fdr: 0.05
+  
+  # Absolute log2 fold change cutoff for calling significant genes.
+  # Default: 1.0
   absolute_log2_fold_change: 1.0
 
 output:
+  # Directory where all output files (report, plots, CSVs) will be saved.
   directory: results/demo
+  
+  # Title displayed at the top of the HTML report.
   report_title: RNA-seq Explorer demo analysis
+  
+  # Seed for reproducible execution.
+  # Default: 42
   random_seed: 42
