@@ -78,5 +78,38 @@
         <p><small>Genes passing both FDR and Fold Change thresholds are highlighted.</small></p>
     </div>
 
+    <div class="metadata">
+        <h2>Reproducibility Manifest</h2>
+        <table>
+            <tr><th>RNA-seq Explorer Version</th><td>{{ manifest.rnax_version }}</td></tr>
+            <tr><th>Python Version</th><td>{{ manifest.python_version }}</td></tr>
+            <tr><th>Platform</th><td>{{ manifest.platform }}</td></tr>
+            <tr><th>Git Commit</th><td>{{ manifest.git_commit or "Not in a git repository" }}</td></tr>
+            <tr><th>Timestamp (UTC)</th><td>{{ manifest.timestamp }}</td></tr>
+            <tr><th>Random Seed</th><td>{{ manifest.random_seed }}</td></tr>
+            <tr><th>Command</th><td><code>{{ manifest.command }}</code></td></tr>
+            <tr>
+                <th>Package Versions</th>
+                <td>
+                    <ul style="margin: 0; padding-left: 1.2rem;">
+                    {% for pkg, ver in manifest.packages.items() %}
+                        <li>{{ pkg }}: {{ ver }}</li>
+                    {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <th>File SHA-256 Hashes</th>
+                <td>
+                    <ul style="margin: 0; padding-left: 1.2rem; font-family: monospace; font-size: 0.9em;">
+                        <li>Config: {{ manifest.config_sha256 }}</li>
+                        <li>Counts: {{ manifest.counts_sha256 }}</li>
+                        <li>Metadata: {{ manifest.metadata_sha256 }}</li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    </div>
+
 </body>
 </html>
