@@ -23,3 +23,7 @@ output:
   directory: results/airway
   report_title: "Airway smooth-muscle cells: dexamethasone versus untreated"
   random_seed: 42
+
+dataset_limitations:
+  - "Four cell lines provide limited statistical power. Marginal results should be interpreted cautiously."
+  - "This is a cell-line model, not an in vivo study. Results may not generalize to intact airway tissue."

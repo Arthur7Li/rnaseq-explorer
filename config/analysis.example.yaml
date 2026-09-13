@@ -54,3 +54,6 @@ output:
   # Seed for reproducible execution.
   # Default: 42
   random_seed: 42
+
+# Optional dataset-specific limitations that will be embedded into the report.
+dataset_limitations: []

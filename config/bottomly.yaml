@@ -20,3 +20,7 @@ thresholds:
 output:
   directory: "results/bottomly"
   report_title: "Bottomly Validation: DBA/2J vs C57BL/6J Mouse Striatum"
+
+dataset_limitations:
+  - "This mouse-strain comparison may be affected by strain-specific reference-genome mapping bias. The count matrix was generated against a single reference; genes with strain-specific sequence variants may have systematically biased counts."
+  - "Differential expression between inbred strains reflects fixed genetic differences, not a controlled experimental intervention. Causal interpretation is not supported."

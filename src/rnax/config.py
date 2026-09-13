@@ -40,6 +40,7 @@ class AnalysisConfig(BaseModel):
     design: DesignConfig
     filtering: FilteringConfig = Field(default_factory=FilteringConfig)
     thresholds: ThresholdsConfig = Field(default_factory=ThresholdsConfig)
+    dataset_limitations: list[str] = Field(default_factory=list)
     output: OutputConfig
 
     @classmethod

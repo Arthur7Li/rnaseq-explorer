@@ -18,16 +18,13 @@
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
+        .observation { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; padding: 1rem; border-radius: 4px; margin: 1rem 0; font-style: italic; }
     </style>
 </head>
 <body>
 
     <h1>{{ config.output.report_title }}</h1>
     
-    <div class="alert">
-        <strong>LIMITATION NOTICE:</strong> RNA-seq Explorer is a reproducible, configuration-driven toolkit for exploratory, non-clinical bulk RNA-seq analysis. This report is strictly for hypothesis generation. It must not be used for clinical, diagnostic, or biomarker-validated conclusions.
-    </div>
-
     <div class="metadata">
         <h2>Analysis Metadata</h2>
         <table>
@@ -39,6 +36,17 @@
             {% endif %}
             <tr><th>FDR Threshold</th><td>{{ config.thresholds.fdr }}</td></tr>
             <tr><th>|Log2FC| Threshold</th><td>{{ config.thresholds.absolute_log2_fold_change }}</td></tr>
+        </table>
+    </div>
+
+    <div class="metadata">
+        <h2>Data Provenance</h2>
+        <table>
+            <tr><th>Counts File</th><td><code>{{ config.input.counts }}</code></td></tr>
+            <tr><th>Counts SHA-256</th><td><code>{{ manifest.counts_sha256 }}</code></td></tr>
+            <tr><th>Metadata File</th><td><code>{{ config.input.metadata }}</code></td></tr>
+            <tr><th>Metadata SHA-256</th><td><code>{{ manifest.metadata_sha256 }}</code></td></tr>
+            <tr><th>Config SHA-256</th><td><code>{{ manifest.config_sha256 }}</code></td></tr>
         </table>
     </div>
 
@@ -57,7 +65,7 @@
         </div>
     </div>
 
-    <h2>Quality Control</h2>
+    <h2>QC Observations</h2>
     <div class="metadata" style="margin-bottom: 1.5rem;">
         <h3>Pre-filtering Summary</h3>
         <p>
@@ -66,6 +74,10 @@
             <strong>Genes removed:</strong> {{ filtering.genes_before - filtering.genes_after }}<br>
             <strong>Rule:</strong> kept genes with &ge; {{ filtering.min_count }} counts in &ge; {{ filtering.min_samples }} samples
         </p>
+    </div>
+
+    <div class="observation">
+        <strong>Observation:</strong> The PCA and Sample Distance heatmaps below visualize sample clustering based on overall expression profiles. Clustering associated with the condition variable indicates systematic transcriptional differences between groups. <em>This is an observational assessment of data structure, not a causal conclusion.</em>
     </div>
 
     <div class="img-container" style="max-width: 800px; margin: 0 auto; display: flex; justify-content: space-around; flex-wrap: wrap;">
@@ -77,20 +89,33 @@
         <div style="flex: 1; min-width: 300px; margin: 10px;">
             <h3>Principal Component Analysis</h3>
             <img src="pca.png" alt="PCA Plot">
-            <p><small>PCA on log1p-transformed normalized counts to identify sample clustering.</small></p>
+            <p><small>PCA on log1p-transformed normalized counts.</small></p>
         </div>
     </div>
     
-    <div class="img-container" style="max-width: 600px; margin: 0 auto;">
+    <div class="img-container" style="max-width: 600px; margin: 0 auto; margin-top: 1rem;">
         <h3>Sample Distances</h3>
         <img src="sample_distances.png" alt="Sample Distances Heatmap">
-        <p><small>Samples that are more similar cluster together. This does not establish causation.</small></p>
+        <p><small>Euclidean distance matrix on log1p-transformed normalized counts.</small></p>
+    </div>
+
+    <h2>Methodology</h2>
+    <div class="metadata">
+        <p>This pipeline employs standard statistical methodologies for bulk RNA-seq differential expression analysis. It does not introduce novel mathematical approaches.</p>
+        <ul>
+            <li><strong>Model:</strong> Generalized Linear Model (GLM) assuming a negative binomial distribution for gene counts.</li>
+            <li><strong>Normalization:</strong> Median-of-ratios method to compute sample-specific size factors, accounting for library size and RNA composition differences.</li>
+            <li><strong>Statistical Test:</strong> Wald test for significance of coefficients in the GLM.</li>
+            <li><strong>Multiple Testing Correction:</strong> Benjamini-Hochberg procedure to control the False Discovery Rate (FDR).</li>
+        </ul>
+        <p><strong>Citations:</strong> Core statistical computations are performed via <a href="https://github.com/owkin/PyDESeq2">PyDESeq2</a>, a Python implementation of the <a href="https://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0550-8">DESeq2</a> algorithm (Love, Huber, and Anders 2014).</p>
     </div>
 
     <h2>Differential Expression Results</h2>
     <div class="alert" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba;">
         <strong>Threshold Interpretation:</strong> FDR and fold-change thresholds are conventional cutoffs, not biological truths. A gene failing these thresholds may still be biologically relevant, and a gene passing them requires independent validation.
     </div>
+    
     <div class="img-container" style="max-width: 800px; margin: 0 auto; display: flex; justify-content: space-around; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 300px; margin: 10px;">
             <h3>Volcano Plot</h3>
@@ -100,18 +125,45 @@
         <div style="flex: 1; min-width: 300px; margin: 10px;">
             <h3>MA Plot</h3>
             <img src="ma_plot.png" alt="MA Plot">
-            <p><small>Genes with both high expression and large fold change are more likely to be biologically meaningful. Statistical significance alone does not imply biological importance.</small></p>
+            <p><small>Relationship between mean normalized count and fold change.</small></p>
         </div>
     </div>
     
-    <div class="img-container" style="max-width: 600px; margin: 0 auto;">
+    <div class="img-container" style="max-width: 600px; margin: 0 auto; margin-top: 1rem;">
         <h3>Top DE Genes Heatmap</h3>
         <img src="top_genes_heatmap.png" alt="Top DE Genes Heatmap">
-        <p><small>Expression patterns of the most statistically significant genes. Z-scoring highlights relative differences, not absolute expression levels.</small></p>
+        <p><small>Expression patterns of the most statistically significant genes. Z-scoring highlights relative differences across samples.</small></p>
+    </div>
+
+    {% if config.dataset_limitations %}
+    <h2>Dataset-Specific Limitations</h2>
+    <div class="alert" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba;">
+        <ul style="margin-bottom: 0;">
+            {% for limitation in config.dataset_limitations %}
+            <li>{{ limitation }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <h2>General Limitations</h2>
+    <div class="alert">
+        <strong>LIMITATION NOTICE:</strong> RNA-seq Explorer is a reproducible, configuration-driven toolkit for exploratory, non-clinical bulk RNA-seq analysis.
+        <ul style="margin-top: 0.5rem; margin-bottom: 0;">
+            <li><strong>No Causal Claims:</strong> Differential expression does not establish causality. The results are strictly for hypothesis generation.</li>
+            <li><strong>Sample Size Constraints:</strong> Bulk RNA-seq experiments often lack sufficient statistical power. Results must be interpreted carefully and require independent experimental validation.</li>
+            <li><strong>Count-Based Assumptions:</strong> This pipeline analyzes raw gene-level counts and cannot detect isoform-level dynamics or allele-specific expression.</li>
+            <li><strong>Not for Clinical Use:</strong> Must not be used for clinical, diagnostic, or biomarker-validated conclusions.</li>
+        </ul>
     </div>
 
     <div class="metadata">
-        <h2>Reproducibility Manifest</h2>
+        <h2>How to Reproduce</h2>
+        <p>To perfectly reproduce this analysis environment and report, run the following exact command from the project root:</p>
+        <pre style="background: #eee; padding: 1rem; border-radius: 4px; overflow-x: auto;"><code>{{ manifest.command }}</code></pre>
+        
+        <h3 style="margin-top: 1.5rem;">Reproducibility Manifest</h3>
+        <p>The following environment details were captured at runtime:</p>
         <table>
             <tr><th>RNA-seq Explorer Version</th><td>{{ manifest.rnax_version }}</td></tr>
             <tr><th>Python Version</th><td>{{ manifest.python_version }}</td></tr>
@@ -119,7 +171,6 @@
             <tr><th>Git Commit</th><td>{{ manifest.git_commit or "Not in a git repository" }}</td></tr>
             <tr><th>Timestamp (UTC)</th><td>{{ manifest.timestamp }}</td></tr>
             <tr><th>Random Seed</th><td>{{ manifest.random_seed }}</td></tr>
-            <tr><th>Command</th><td><code>{{ manifest.command }}</code></td></tr>
             <tr>
                 <th>Package Versions</th>
                 <td>
@@ -127,16 +178,6 @@
                     {% for pkg, ver in manifest.packages.items() %}
                         <li>{{ pkg }}: {{ ver }}</li>
                     {% endfor %}
-                    </ul>
-                </td>
-            </tr>
-            <tr>
-                <th>File SHA-256 Hashes</th>
-                <td>
-                    <ul style="margin: 0; padding-left: 1.2rem; font-family: monospace; font-size: 0.9em;">
-                        <li>Config: {{ manifest.config_sha256 }}</li>
-                        <li>Counts: {{ manifest.counts_sha256 }}</li>
-                        <li>Metadata: {{ manifest.metadata_sha256 }}</li>
                     </ul>
                 </td>
             </tr>
