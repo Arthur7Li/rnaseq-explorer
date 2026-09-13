@@ -70,3 +70,13 @@ Every entry uses this template:
 - Decision: Add `top_n_genes` as a new optional field in `ThresholdsConfig` with a default of 30.
 - Alternatives considered: Hardcoding 30 (rejected — reduces user flexibility for different datasets).
 - Consequences: Allows the top genes heatmap to be generated dynamically based on user preference while maintaining a sensible default.
+
+
+## D-7: Add dataset_limitations config field
+
+- Date: 2026-09-13
+- Status: accepted
+- Context: Different biological datasets possess unique scientific constraints, experimental caveats, and biological limitations (e.g. cell-line generalization, mouse strain mapping bias, or sample size limits) that must be communicated alongside generic tool limitations.
+- Decision: Add `dataset_limitations: list[str] = Field(default_factory=list)` to `AnalysisConfig`. Render these dynamically as a dedicated section in the HTML report when provided.
+- Alternatives considered: hardcoding dataset caveats in the Jinja2 template (rejected — violates separation of concerns and breaks generality for custom user datasets); omitting dataset-specific caveats (rejected — violates scientific integrity and transparency principles).
+- Consequences: Each dataset configuration YAML can declare tailored scientific limitations that appear directly in the output report, keeping the core codebase generic while ensuring strict biological integrity.
