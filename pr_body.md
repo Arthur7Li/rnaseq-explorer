@@ -1,25 +1,30 @@
 ## Summary
 
-This PR completes **Phase 8: Enhanced Report Content** from the implementation plan.
+This PR implements **Phase 9: README & Community Files** from the Good Portfolio Version implementation plan.
 
 ## Changes
-- **`src/rnax/config.py`**: Added a new `dataset_limitations: list[str]` field to `AnalysisConfig`.
-- **`config/*.yaml`**: Updated dataset configuration files (`airway`, `bottomly`, and example configs) with dataset-specific scientific caveats and limitations.
-- **`src/rnax/templates/report.html.j2`**: Performed a major template redesign to properly contextualize the pipeline outputs. Added new sections in the following order:
-  1. **Data Provenance**: Explicitly displays inputs and cryptographic SHA-256 hashes side-by-side with metadata.
-  2. **QC Observations**: Restructured QC descriptions to emphasize observation rather than causation.
-  3. **Methodology**: Detailed explanation of the underlying PyDESeq2 Negative Binomial GLM, median-of-ratios normalization, Wald test, and FDR correction. Included proper academic citations (Love et al. 2014).
-  4. **Dataset-Specific Limitations**: Dynamically rendered bulleted list of limitations defined within the YAML config.
-  5. **General Limitations**: Expanded to outline common bulk RNA-seq pitfalls, including count-based assumptions, sample size issues, and lack of causal inference.
-  6. **How to Reproduce**: Integrated a direct, copy-pasteable CLI command and an inline reproducibility manifest dump.
-- **`tests/test_report.py`**: Added assertions validating that all new template sections render successfully and test that the dataset limitations block disappears gracefully when empty.
+- **`README.md`**: Complete rewrite including:
+  - CI status badge.
+  - Quickstart with fast Pasilla fixture analysis.
+  - Multi-dataset benchmark table (Airway, Pasilla, Bottomly) with research questions and configurations.
+  - Strict input specification for `counts.csv` and `metadata.csv` with explicit format constraints and examples.
+  - Complete output breakdown for all 9 analysis files (HTML report, CSVs, and PNG figures).
+  - Statistical methodology overview covering negative binomial GLMs, median-of-ratios normalization, Wald testing, and Benjamini-Hochberg FDR correction.
+  - Explicit scientific limitations and academic citations (PyDESeq2, DESeq2, and datasets).
+- **Issue Templates**:
+  - `.github/ISSUE_TEMPLATE/bug_report.md`: Structured template for bug reporting with environment metadata.
+  - `.github/ISSUE_TEMPLATE/feature_request.md`: Structured template for new features with mission and scope checks.
+- **`CODE_OF_CONDUCT.md`**: Standard Contributor Covenant v2.1.
+- **`docs/WALKTHROUGH.md`**: Self-contained step-by-step tutorial guiding a user through running the Pasilla demo analysis and inspecting generated outputs.
+- **`docs/VALIDATION.md`**: Validation report providing multi-dataset schema consistency evidence across Airway, Pasilla, and Bottomly.
+- **`CONTRIBUTING.md`**: Updated from the planning phase to reflect current codebase status, referencing the code of conduct, issue templates, and test workflows.
 
 ## Test evidence
-- `uv run pytest` (39 tests) all pass successfully, including the new unit tests.
-- `uv run ruff check .` passes perfectly.
-- `uv run mypy src/` reports zero type errors.
+- `uv run ruff check .` passes with zero issues.
+- `uv run mypy src/` passes with zero type errors.
+- `uv run pytest` passes.
 
 ## Definition of Done
 - [x] All acceptance criteria met, no silent scope reduction.
-- [x] Template restructuring complete with updated scientific phrasing.
-- [x] Tests fully updated and passing.
+- [x] All required documentation and community files created and linked.
+- [x] No code changes (documentation only).
