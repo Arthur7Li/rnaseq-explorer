@@ -22,6 +22,11 @@ def mock_config(tmp_path):
         "absolute_log2_fold_change": 1.0,
         "top_n_genes": 30
     })()
+    config.input = type("obj", (object,), {
+        "counts": "mock_counts.csv",
+        "metadata": "mock_metadata.csv"
+    })()
+    config.dataset_limitations = ["Test limitation 1", "Test limitation 2"]
     return config
 
 
@@ -56,7 +61,7 @@ def test_generate_report(mocker, mock_config, dummy_dfs):
         metadata_sha256="meta_hash",
         timestamp="2026-09-02T00:00:00Z",
         random_seed=42,
-        command="rnax analyze"
+        command="rnax analyze my_config.yaml"
     )
     
     from rnax.pipeline.deseq import FilteringResult
@@ -82,8 +87,7 @@ def test_generate_report(mocker, mock_config, dummy_dfs):
     
     # Verify contents
     assert "Test Title" in html
-    assert "Exploratory, non-clinical" in html or "exploratory, non-clinical" in html
-    assert "clinical, diagnostic" in html
+    assert "exploratory, non-clinical" in html
     assert "condition" in html
     assert "batch" in html
     assert "Pre-filtering Summary" in html
@@ -91,4 +95,51 @@ def test_generate_report(mocker, mock_config, dummy_dfs):
     assert "Genes after filtering:</strong> 80" in html
     assert "Genes removed:</strong> 20" in html
     assert "Threshold Interpretation" in html
-    assert "conventional cutoffs, not biological truths" in html
+    
+    # Verify Phase 8 additions
+    assert "Data Provenance" in html
+    assert "config_hash" in html
+    assert "mock_counts.csv" in html
+    
+    assert "QC Observations" in html
+    assert "This is an observational assessment of data structure, not a causal conclusion" in html
+    
+    assert "Methodology" in html
+    assert "Negative binomial GLM" in html or "negative binomial distribution" in html
+    assert "Median-of-ratios" in html
+    
+    assert "Dataset-Specific Limitations" in html
+    assert "Test limitation 1" in html
+    
+    assert "General Limitations" in html
+    assert "No Causal Claims" in html
+    
+    assert "How to Reproduce" in html
+    assert "rnax analyze my_config.yaml" in html
+
+
+def test_report_no_dataset_limitations(mocker, mock_config, dummy_dfs):
+    # Test that the dataset limitations section is omitted if empty
+    mock_config.dataset_limitations = []
+    raw_counts, metadata, norm_counts, results = dummy_dfs
+    
+    for plot_fn in ["plot_library_sizes", "plot_pca", "plot_volcano", "plot_sample_distances", "plot_ma", "plot_top_genes_heatmap"]:
+        mocker.patch(f"rnax.pipeline.report.{plot_fn}")
+        
+    from rnax.manifest import ReproducibilityManifest
+    mock_manifest = ReproducibilityManifest(
+        rnax_version="0.1.0", python_version="3.13", platform="Darwin", packages={},
+        git_commit=None, config_sha256="", counts_sha256="", metadata_sha256="",
+        timestamp="", random_seed=42, command=""
+    )
+    
+    from rnax.pipeline.deseq import FilteringResult
+    mock_filtering = FilteringResult(filtered_counts=raw_counts, genes_before=0, genes_after=0, min_count=0, min_samples=0)
+    
+    generate_report(mock_config, raw_counts, metadata, norm_counts, results, mock_manifest, mock_filtering)
+    
+    out_dir = Path(mock_config.output.directory)
+    html = (out_dir / "report.html").read_text()
+    
+    assert "Dataset-Specific Limitations" not in html
+    assert "Test limitation 1" not in html
