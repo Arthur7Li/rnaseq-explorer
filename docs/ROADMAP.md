@@ -32,13 +32,13 @@ Take one small, permitted bulk RNA-seq demo dataset with two conditions from inp
 
 ### MVP acceptance checklist
 
-- [ ] A user can run one documented command on demo data.
-- [ ] Invalid sample IDs produce a readable error, not a misleading report.
-- [ ] The report names the comparison direction unambiguously.
-- [ ] Results include adjusted p-values and do not call exploratory hits validated biomarkers.
-- [ ] The demo is reproducible in a newly created environment.
-- [ ] At least 8 automated tests pass locally.
-- [ ] You can explain each figure and each output-column meaning without AI assistance.
+- [x] A user can run one documented command on demo data.
+- [x] Invalid sample IDs produce a readable error, not a misleading report.
+- [x] The report names the comparison direction unambiguously.
+- [x] Results include adjusted p-values and do not call exploratory hits validated biomarkers.
+- [x] The demo is reproducible in a newly created environment.
+- [x] At least 8 automated tests pass locally.
+- [x] You can explain each figure and each output-column meaning without AI assistance.
 
 ### MVP deliberately excludes
 
@@ -70,14 +70,14 @@ Turn the vertical slice into a clean, reusable portfolio project that demonstrat
 
 ### Good-version acceptance checklist
 
-- [ ] CI is green from a fresh clone and runs without private credentials.
-- [ ] A malformed count file, malformed metadata file, and bad config each fail safely with tested messages.
-- [ ] A reviewer can trace every report number to an input file, configuration setting, and code version.
-- [ ] The report distinguishes QC observations from biological conclusions.
-- [ ] Two demo datasets or two planned contrasts run successfully, including one expected-warning case.
-- [ ] Code coverage is measured; critical validation/reporting paths are covered.
-- [ ] README includes install, quickstart, input specification, outputs, methodology, limitations, and citation/data attribution.
-- [ ] You can defend the scope choice: count-matrix analysis rather than raw FASTQ processing.
+- [x] CI is green from a fresh clone and runs without private credentials.
+- [x] A malformed count file, malformed metadata file, and bad config each fail safely with tested messages.
+- [x] A reviewer can trace every report number to an input file, configuration setting, and code version.
+- [x] The report distinguishes QC observations from biological conclusions.
+- [x] Two demo datasets or two planned contrasts run successfully, including one expected-warning case.
+- [x] Code coverage is measured; critical validation/reporting paths are covered.
+- [x] README includes install, quickstart, input specification, outputs, methodology, limitations, and citation/data attribution.
+- [x] You can defend the scope choice: count-matrix analysis rather than raw FASTQ processing.
 
 ## Outstanding version: reproducible research tool
 
