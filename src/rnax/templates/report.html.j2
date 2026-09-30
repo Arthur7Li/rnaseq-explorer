@@ -143,6 +143,65 @@
         <p><small>Expression patterns of the most statistically significant genes. Z-scoring highlights relative differences across samples.</small></p>
     </div>
 
+    {% if top_genes %}
+    <h2>Gene Annotations (Top 50 DE Genes)</h2>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+            <thead>
+                <tr>
+                    <th>Gene ID</th>
+                    {% if top_genes[0].gene_symbol is defined %}<th>Symbol</th>{% endif %}
+                    <th>Log2FC</th>
+                    <th>padj</th>
+                    {% if top_genes[0].description is defined %}<th>Description</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in top_genes %}
+                <tr>
+                    <td>{{ row.gene_id }}</td>
+                    {% if row.gene_symbol is defined %}<td>{{ row.gene_symbol }}</td>{% endif %}
+                    <td>{{ "%.2f"|format(row.log2FoldChange) }}</td>
+                    <td>{{ "%.2e"|format(row.padj) }}</td>
+                    {% if row.description is defined %}<td>{{ row.description }}</td>{% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    {% if enrichment %}
+    <h2>Pathway Enrichment (Exploratory)</h2>
+    <div class="alert" style="background-color: #e2e3e5; color: #383d41; border-color: #d6d8db;">
+        <strong>EXPLORATORY ONLY:</strong> Enrichment results are derived from database annotations and statistical tests on gene lists. They do not constitute biological validation.
+    </div>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+            <thead>
+                <tr>
+                    <th>Term</th>
+                    <th>Overlap</th>
+                    <th>P-value</th>
+                    <th>Adjusted P-value</th>
+                    <th>Genes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in enrichment %}
+                <tr>
+                    <td>{{ row.Term }}</td>
+                    <td>{{ row.Overlap }}</td>
+                    <td>{{ "%.2e"|format(row['P-value']) }}</td>
+                    <td>{{ "%.2e"|format(row['Adjusted P-value']) }}</td>
+                    <td><small>{{ row.Genes }}</small></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
     {% if config.dataset_limitations %}
     <h2>Dataset-Specific Limitations</h2>
     <div class="alert" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba;">

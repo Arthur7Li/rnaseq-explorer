@@ -44,6 +44,13 @@ class ContrastSpec(BaseModel):
     comparison_level: str
 
 
+class AnnotationConfig(BaseModel):
+    enabled: bool = False
+    organism: str = "human"  # "human", "mouse", "drosophila"
+    gene_sets: str = "GO_Biological_Process_2023"
+    enrichment_fdr: float = Field(default=0.05, ge=0.0, le=1.0)
+
+
 class AnalysisConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -54,6 +61,7 @@ class AnalysisConfig(BaseModel):
     dataset_limitations: list[str] = Field(default_factory=list)
     output: OutputConfig
     contrasts: list[ContrastSpec] | None = None
+    annotation: AnnotationConfig = Field(default_factory=AnnotationConfig)
 
     def validate_design_matrix(self, metadata_df: "pd.DataFrame") -> list[str]:
         import pandas as pd
