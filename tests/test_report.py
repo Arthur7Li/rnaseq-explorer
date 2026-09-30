@@ -117,6 +117,10 @@ def test_generate_report(mocker, mock_config, dummy_dfs):
     assert "How to Reproduce" in html
     assert "rnax analyze my_config.yaml" in html
 
+    # Verify Phase 1 (Outstanding) Accessibility additions
+    assert '<meta name="description"' in html
+    assert 'alt="' in html
+
 
 def test_report_no_dataset_limitations(mocker, mock_config, dummy_dfs):
     # Test that the dataset limitations section is omitted if empty

@@ -39,28 +39,28 @@ def generate_report(
     norm_counts.to_csv(norm_counts_path)
     
     # Generate Plots
-    plot_library_sizes(
+    alt_library_sizes = plot_library_sizes(
         raw_counts, 
         metadata, 
         config.design.condition_column, 
         str(out_dir / "library_sizes.png")
     )
     
-    plot_pca(
+    alt_pca = plot_pca(
         norm_counts, 
         metadata, 
         config.design.condition_column, 
         str(out_dir / "pca.png")
     )
     
-    plot_volcano(
+    alt_volcano = plot_volcano(
         results_df, 
         config.thresholds.fdr, 
         config.thresholds.absolute_log2_fold_change, 
         str(out_dir / "volcano.png")
     )
     
-    plot_sample_distances(
+    alt_sample_distances = plot_sample_distances(
         norm_counts, 
         metadata, 
         config.design.condition_column, 
@@ -68,14 +68,14 @@ def generate_report(
         str(out_dir / "sample_distances.png")
     )
     
-    plot_ma(
+    alt_ma = plot_ma(
         results_df, 
         config.thresholds.fdr, 
         config.thresholds.absolute_log2_fold_change, 
         str(out_dir / "ma_plot.png")
     )
     
-    plot_top_genes_heatmap(
+    alt_top_genes_heatmap = plot_top_genes_heatmap(
         norm_counts, 
         results_df, 
         metadata, 
@@ -84,6 +84,15 @@ def generate_report(
         config.thresholds.top_n_genes, 
         str(out_dir / "top_genes_heatmap.png")
     )
+    
+    plot_alts = {
+        "library_sizes": alt_library_sizes or "Library Sizes per Sample",
+        "pca": alt_pca or "PCA of Normalized Counts",
+        "volcano": alt_volcano or "Volcano Plot",
+        "sample_distances": alt_sample_distances or "Sample Distance Matrix",
+        "ma": alt_ma or "MA Plot",
+        "top_genes_heatmap": alt_top_genes_heatmap or "Top DE Genes Heatmap",
+    }
     
     # Calculate sig stats
     fdr_thresh = config.thresholds.fdr
@@ -105,7 +114,8 @@ def generate_report(
         sig_up=sig_up,
         sig_down=sig_down,
         manifest=manifest,
-        filtering=filtering
+        filtering=filtering,
+        plot_alts=plot_alts,
     )
     
     report_path = out_dir / "report.html"
