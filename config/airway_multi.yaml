@@ -1,0 +1,41 @@
+# Demonstration of the multi-contrast feature using the Airway dataset.
+# Since Airway only contains a single valid condition comparison (dex vs untreated),
+# this config demonstrates the capability by running it in both directions.
+input:
+  counts: data/airway/counts.csv
+  metadata: data/airway/metadata.csv
+  gene_id_column: gene_id
+
+design:
+  condition_column: treatment
+  reference_level: untreated
+  comparison_level: dexamethasone
+  paired_or_block_column: cell_line
+
+contrasts:
+  - name: "dex_vs_untreated"
+    condition_column: treatment
+    reference_level: untreated
+    comparison_level: dexamethasone
+  
+  - name: "untreated_vs_dex"
+    condition_column: treatment
+    reference_level: dexamethasone
+    comparison_level: untreated
+
+filtering:
+  minimum_count: 10
+  minimum_samples: 2
+
+thresholds:
+  fdr: 0.05
+  absolute_log2_fold_change: 1.0
+
+output:
+  directory: results/airway_multi
+  report_title: "Airway: Multi-contrast Demonstration"
+  random_seed: 42
+
+dataset_limitations:
+  - "Four cell lines provide limited statistical power. Marginal results should be interpreted cautiously."
+  - "This is a cell-line model, not an in vivo study. Results may not generalize to intact airway tissue."

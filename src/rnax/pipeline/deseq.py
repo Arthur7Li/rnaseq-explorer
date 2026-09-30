@@ -8,6 +8,10 @@ from pydeseq2.ds import DeseqStats
 
 from rnax.config import AnalysisConfig
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from rnax.config import ContrastSpec
+
 logger = logging.getLogger(__name__)
 
 
@@ -59,7 +63,8 @@ def filter_low_counts(
 def run_deseq2(
     counts_df: pd.DataFrame,
     metadata_df: pd.DataFrame,
-    config: AnalysisConfig
+    config: AnalysisConfig,
+    contrast_spec: "ContrastSpec | None" = None
 ) -> tuple[pd.DataFrame, pd.DataFrame, FilteringResult]:
     """
     Run PyDESeq2 differential expression pipeline.
@@ -68,10 +73,17 @@ def run_deseq2(
         counts_df: Validated raw counts (genes x samples).
         metadata_df: Validated metadata.
         config: Analysis configuration.
+        contrast_spec: Optional specific contrast to run. If None, falls back to config.design.
         
     Returns:
         Tuple of (normalized_counts_df, deseq_results_df, filtering_result).
     """
+    from rnax.config import ContrastSpec
+    
+    cond_col = contrast_spec.condition_column if contrast_spec else config.design.condition_column
+    comp_level = contrast_spec.comparison_level if contrast_spec else config.design.comparison_level
+    ref_level = contrast_spec.reference_level if contrast_spec else config.design.reference_level
+
     # 1. Filter low count genes
     filtering_result = filter_low_counts(
         counts_df,
@@ -81,11 +93,10 @@ def run_deseq2(
     filtered_counts = filtering_result.filtered_counts
     
     # 2. Setup the design formula
-    design_factors = [config.design.condition_column]
+    design_formula = f"~ {cond_col}"
     if config.design.paired_or_block_column:
-        # In formulaic, you put block first so it controls variance before condition
-        # But for pydeseq2 string formula, just join with +
-        design_factors.append(config.design.paired_or_block_column)
+        # Block factor should ideally be first in formula to control for variance
+        design_formula = f"~ {config.design.paired_or_block_column} + {cond_col}"
 
     # PyDESeq2 expects counts transposed as (samples x genes)
     counts_t = filtered_counts.T
@@ -94,14 +105,7 @@ def run_deseq2(
     dds = DeseqDataSet(
         counts=counts_t,
         metadata=metadata_df,
-        design_factors=design_factors, # Note: PyDESeq2 <= 0.4.1 uses design_factors list.
-                                       # Wait, if we use formulaic via formula string?
-                                       # Actually, PyDESeq2's DeseqDataSet signature handles
-                                       # design_factors as a single string formula or list.
-                                       # Let's just use formula string if supported, or list of strings.
-                                       # The standard argument in newer pydeseq2 is `design_factors`.
-                                       # Passing it as a list of column names builds `~ col1 + col2`.
-                                       # Let's pass the list of column names.
+        design=design_formula,
         refit_cooks=True,
         n_cpus=1,  # Single-threaded by default to ensure reproducibility/stability
     )
@@ -111,11 +115,7 @@ def run_deseq2(
     
     # 4. Extract Results
     # In PyDESeq2, contrast is passed as [factor, numerator, denominator]
-    contrast = [
-        config.design.condition_column,
-        config.design.comparison_level,
-        config.design.reference_level
-    ]
+    contrast = [cond_col, comp_level, ref_level]
     
     stat_res = DeseqStats(
         dds,
