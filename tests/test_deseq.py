@@ -78,8 +78,8 @@ def test_run_deseq2_mocked(mocker, sample_counts, sample_metadata, mock_config):
     # Assert DeseqDataSet was initialized with correct params
     mock_dds.assert_called_once()
     _, kwargs = mock_dds.call_args
-    assert "batch" in kwargs["design_factors"]
-    assert "condition" in kwargs["design_factors"]
+    assert "batch" in kwargs["design"]
+    assert "condition" in kwargs["design"]
     # assert the count matrix passed was transposed
     assert kwargs["counts"].shape == (4, 3) # samples x filtered genes
     

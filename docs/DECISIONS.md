@@ -90,3 +90,11 @@ Every entry uses this template:
 - Alternatives considered: Using default matplotlib/seaborn palettes (rejected — not guaranteed colorblind-safe); Viridis/Cividis continuous colormaps for discrete categories (rejected — harder to interpret for binary significance states).
 - Consequences: All visualization outputs adhere to accessibility guidelines without compromising visual clarity. HTML reports are screen-reader accessible.
 
+## D-9: Support multiple planned contrasts via optional `contrasts` config field
+
+- Date: 2026-09-29
+- Status: accepted
+- Context: Researchers often need to compare multiple groups (e.g. A vs B, A vs C) within a single dataset. Running separate configuration files and pipelines is tedious and breaks the cohesiveness of the report. The design matrix also requires validation to ensure the model is computationally feasible and biologically sound.
+- Decision: Add an optional `contrasts` list to `AnalysisConfig`. When provided, the CLI loops over the contrasts, running `DeseqStats` for each and outputting distinct subdirectories and an `index.html`. Add rigorous design matrix validation to check for confounding variables and minimum replicate counts. The single-contrast `design` block remains the fallback for backward compatibility.
+- Alternatives considered: Using interaction terms (rejected — too complex for a standard automated pipeline); requiring users to write custom Python scripts (rejected — reduces reproducibility and accessibility).
+- Consequences: The tool can now naturally support complex multi-group experimental designs while keeping the configuration simple. Backward compatibility is strictly maintained.

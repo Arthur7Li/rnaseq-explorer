@@ -29,9 +29,16 @@
     <div class="metadata">
         <h2>Analysis Metadata</h2>
         <table>
-            <tr><th>Condition Column</th><td>{{ config.design.condition_column }}</td></tr>
-            <tr><th>Reference Level</th><td>{{ config.design.reference_level }}</td></tr>
-            <tr><th>Comparison Level</th><td>{{ config.design.comparison_level }}</td></tr>
+            {% set cond_col = contrast_spec.condition_column if contrast_spec else config.design.condition_column %}
+            {% set ref_level = contrast_spec.reference_level if contrast_spec else config.design.reference_level %}
+            {% set comp_level = contrast_spec.comparison_level if contrast_spec else config.design.comparison_level %}
+            
+            {% if contrast_spec %}
+            <tr><th>Contrast Name</th><td>{{ contrast_spec.name }}</td></tr>
+            {% endif %}
+            <tr><th>Condition Column</th><td>{{ cond_col }}</td></tr>
+            <tr><th>Reference Level</th><td>{{ ref_level }}</td></tr>
+            <tr><th>Comparison Level</th><td>{{ comp_level }}</td></tr>
             {% if config.design.paired_or_block_column %}
             <tr><th>Blocking Covariate</th><td>{{ config.design.paired_or_block_column }}</td></tr>
             {% endif %}

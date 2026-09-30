@@ -1,9 +1,13 @@
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
 from rnax.config import AnalysisConfig
+
+if TYPE_CHECKING:
+    from rnax.config import ContrastSpec
 from rnax.manifest import ReproducibilityManifest
 from rnax.pipeline.deseq import FilteringResult
 from rnax.pipeline.plots import (
@@ -23,13 +27,18 @@ def generate_report(
     norm_counts: pd.DataFrame,
     results_df: pd.DataFrame,
     manifest: ReproducibilityManifest,
-    filtering: FilteringResult
+    filtering: FilteringResult,
+    contrast_spec: "ContrastSpec | None" = None,
+    output_dir: Path | None = None
 ) -> None:
     """
     Generate plots, export CSVs, and render the static HTML report.
     """
-    out_dir = Path(config.output.directory)
+
+    out_dir = output_dir if output_dir is not None else Path(config.output.directory)
     out_dir.mkdir(parents=True, exist_ok=True)
+    
+    cond_col = contrast_spec.condition_column if contrast_spec else config.design.condition_column
     
     # Export CSVs
     results_path = out_dir / "results.csv"
@@ -42,14 +51,14 @@ def generate_report(
     alt_library_sizes = plot_library_sizes(
         raw_counts, 
         metadata, 
-        config.design.condition_column, 
+        cond_col, 
         str(out_dir / "library_sizes.png")
     )
     
     alt_pca = plot_pca(
         norm_counts, 
         metadata, 
-        config.design.condition_column, 
+        cond_col, 
         str(out_dir / "pca.png")
     )
     
@@ -63,7 +72,7 @@ def generate_report(
     alt_sample_distances = plot_sample_distances(
         norm_counts, 
         metadata, 
-        config.design.condition_column, 
+        cond_col, 
         config.design.paired_or_block_column, 
         str(out_dir / "sample_distances.png")
     )
@@ -79,7 +88,7 @@ def generate_report(
         norm_counts, 
         results_df, 
         metadata, 
-        config.design.condition_column, 
+        cond_col, 
         config.design.paired_or_block_column, 
         config.thresholds.top_n_genes, 
         str(out_dir / "top_genes_heatmap.png")
@@ -110,6 +119,7 @@ def generate_report(
     
     html_content = template.render(
         config=config,
+        contrast_spec=contrast_spec,
         total_genes=total_genes,
         sig_up=sig_up,
         sig_down=sig_down,

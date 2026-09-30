@@ -73,18 +73,43 @@ def analyze(
         counts_df, metadata_df = ingest_data(cfg)
         typer.echo(f"Successfully validated {counts_df.shape[0]} genes across {counts_df.shape[1]} samples.")
         
+        warnings = cfg.validate_design_matrix(metadata_df)
+        for w in warnings:
+            typer.secho(f"Warning: {w}", fg=typer.colors.YELLOW)
+            
         from rnax.manifest import build_manifest
         manifest = build_manifest(cfg, config)
         
-        typer.echo("Running differential expression analysis...")
-        norm_counts, results, filtering = run_deseq2(counts_df, metadata_df, cfg)
-        
         from rnax.pipeline.report import generate_report
         
-        typer.echo("Generating report and plots...")
-        generate_report(cfg, counts_df, metadata_df, norm_counts, results, manifest, filtering)
-        
-        typer.echo(f"Differential expression complete. {results.shape[0]} genes analyzed.")
+        if cfg.contrasts and len(cfg.contrasts) > 0:
+            typer.echo(f"Running multiple contrasts: {[c.name for c in cfg.contrasts]}")
+            for contrast in cfg.contrasts:
+                typer.echo(f"  -> Running contrast: {contrast.name}")
+                norm_counts, results, filtering = run_deseq2(counts_df, metadata_df, cfg, contrast_spec=contrast)
+                out_dir = Path(cfg.output.directory) / contrast.name
+                generate_report(cfg, counts_df, metadata_df, norm_counts, results, manifest, filtering, contrast_spec=contrast, output_dir=out_dir)
+                
+            # generate index.html
+            from jinja2 import Environment, FileSystemLoader
+            template_dir = Path(__file__).parent / "templates"
+            env = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=True)
+            template = env.get_template("index.html.j2")
+            index_html = template.render(config=cfg)
+            out_root = Path(cfg.output.directory)
+            out_root.mkdir(parents=True, exist_ok=True)
+            (out_root / "index.html").write_text(index_html)
+            
+            typer.echo("Multi-contrast analysis complete.")
+        else:
+            typer.echo("Running single contrast differential expression analysis...")
+            norm_counts, results, filtering = run_deseq2(counts_df, metadata_df, cfg)
+            
+            typer.echo("Generating report and plots...")
+            generate_report(cfg, counts_df, metadata_df, norm_counts, results, manifest, filtering)
+            
+            typer.echo(f"Differential expression complete. {results.shape[0]} genes analyzed.")
+            
         typer.echo(f"Output saved to: {cfg.output.directory}")
         
     except FileNotFoundError as e:
