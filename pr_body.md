@@ -1,29 +1,34 @@
 ## Summary
 
-This PR completes **Phase 10: Final Acceptance & Milestone Completion**, achieving 100% completion of the Good Portfolio Version milestone.
+This PR implements **Phase 1: Accessibility & Colorblind-Safe Plots** from the Outstanding Version implementation plan (`docs/OUTSTANDING_PLAN.md`).
 
-## Audit & Verification Results
-- **Full Acceptance Checklist Verified**:
-  - CI is green from a fresh clone and runs without private credentials.
-  - A malformed count file, malformed metadata file, and bad config each fail safely with tested messages (17 validation and config tests passing).
-  - Traceability: every output report number traces to input paths, SHA-256 hashes, config settings, and code version in the embedded Reproducibility Manifest.
-  - Clear observational framing: reports explicitly separate structural QC observations from biological conclusions and disclaim causal inference.
-  - Multi-dataset execution: all three supported datasets (Airway, Pasilla, Bottomly) execute end-to-end cleanly across human, fruit fly, and mouse organisms.
-  - Test coverage: measured at **92%** across the entire codebase (`pytest --cov=rnax`), far exceeding the 85% requirement.
-  - Comprehensive documentation: README, WALKTHROUGH, VALIDATION, CONTRIBUTING, and CODE_OF_CONDUCT are fully linked and complete.
-  - Non-clinical disclaimer: visible in CLI, HTML reports, and README.
-- **Decision Log**:
-  - Verified entries D-1 through D-6.
-  - Logged entry **D-7** in `docs/DECISIONS.md` documenting the addition of `dataset_limitations` to `AnalysisConfig`.
-- **Roadmap**:
-  - Checked off all items in the MVP and Good-Version acceptance checklists in `docs/ROADMAP.md`.
+## Changes
+- **`src/rnax/pipeline/plots.py`**:
+  - Adopted the Wong (2011) colorblind-safe palette (`CB_PALETTE` and `WONG_PALETTE`):
+    - Up: `"#D55E00"` (vermillion)
+    - Down: `"#0072B2"` (blue)
+    - Not Significant: `"#999999"` (gray)
+  - Added secondary encoding channels (point shapes: triangles `^` for Up, inverted triangles `v` for Down, circles `o` for Not Significant in volcano and MA plots; distinct marker styles in PCA plots).
+  - Enforced minimum 12pt axis labels and 14pt titles via `matplotlib.pyplot.rc_context`.
+  - Added dynamic, descriptive `alt` text strings returned by all plotting functions.
+- **`src/rnax/pipeline/report.py`**:
+  - Captured `alt` text return values from plotting functions and passed them to the Jinja2 template context (`plot_alts`).
+- **`src/rnax/templates/report.html.j2`**:
+  - Added a `<meta name="description">` tag for accessibility.
+  - Updated all `<img>` tags to use dynamic, descriptive `alt` text with sensible fallbacks.
+- **`tests/test_plots.py` & `tests/test_report.py`**:
+  - Added unit test `test_cb_palette_wong` asserting colorblind-safe hex values.
+  - Verified that all plot functions return non-empty descriptive `alt` text strings.
+  - Added HTML report assertions for `<meta name="description"` and `alt=` attributes.
+- **`docs/DECISIONS.md`**:
+  - Appended decision **D-8**: Adopt Wong (2011) colorblind-safe palette as standard plot color scheme.
 
 ## Test evidence
-- `uv run ruff check .` passes with zero issues.
-- `uv run mypy src/` passes with zero type errors.
-- `uv run pytest --cov=rnax --cov-report=term-missing` passes 39/39 tests with 92% coverage.
+- `uv run ruff check .` passes with 0 issues.
+- `uv run mypy src/` passes with 0 type errors.
+- `uv run pytest` passes 40/40 tests.
 
 ## Definition of Done
-- [x] All acceptance criteria met across all 10 phases.
-- [x] No regressions or uncommitted files.
-- [x] All milestone requirements satisfied.
+- [x] All acceptance criteria met, no silent scope reduction.
+- [x] All existing and new tests pass locally.
+- [x] Decision log D-8 recorded.

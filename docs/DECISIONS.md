@@ -80,3 +80,13 @@ Every entry uses this template:
 - Decision: Add `dataset_limitations: list[str] = Field(default_factory=list)` to `AnalysisConfig`. Render these dynamically as a dedicated section in the HTML report when provided.
 - Alternatives considered: hardcoding dataset caveats in the Jinja2 template (rejected — violates separation of concerns and breaks generality for custom user datasets); omitting dataset-specific caveats (rejected — violates scientific integrity and transparency principles).
 - Consequences: Each dataset configuration YAML can declare tailored scientific limitations that appear directly in the output report, keeping the core codebase generic while ensuring strict biological integrity.
+
+## D-8: Adopt Wong (2011) colorblind-safe palette as standard plot color scheme
+
+- Date: 2026-09-29
+- Status: accepted
+- Context: Scientific figures must be accessible to readers with color-vision deficiencies (CVD). The initial volcano and MA plots used red and blue (#e41a1c, #377eb8), which can be ambiguous under protanopia or deuteranopia and lacked secondary encoding channels.
+- Decision: Adopt the Wong (2011) colorblind-safe palette (`#D55E00` vermillion for upregulated, `#0072B2` blue for downregulated, `#999999` gray for non-significant) across all pipeline plots. Implement point-shape differentiation (triangles vs inverted triangles vs circles) as a secondary encoding channel. Use minimum 12pt axis labels and 14pt titles via `matplotlib.rc_context`. Provide descriptive `alt` text for all HTML report images.
+- Alternatives considered: Using default matplotlib/seaborn palettes (rejected — not guaranteed colorblind-safe); Viridis/Cividis continuous colormaps for discrete categories (rejected — harder to interpret for binary significance states).
+- Consequences: All visualization outputs adhere to accessibility guidelines without compromising visual clarity. HTML reports are screen-reader accessible.
+
