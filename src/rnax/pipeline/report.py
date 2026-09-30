@@ -1,10 +1,11 @@
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader
 
 from rnax.config import AnalysisConfig
-from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from rnax.config import ContrastSpec
 from rnax.manifest import ReproducibilityManifest
@@ -33,8 +34,7 @@ def generate_report(
     """
     Generate plots, export CSVs, and render the static HTML report.
     """
-    from rnax.config import ContrastSpec
-    
+
     out_dir = output_dir if output_dir is not None else Path(config.output.directory)
     out_dir.mkdir(parents=True, exist_ok=True)
     

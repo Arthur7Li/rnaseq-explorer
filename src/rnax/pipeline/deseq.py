@@ -1,6 +1,7 @@
 
 import logging
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import pandas as pd
 from pydeseq2.dds import DeseqDataSet
@@ -8,7 +9,6 @@ from pydeseq2.ds import DeseqStats
 
 from rnax.config import AnalysisConfig
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from rnax.config import ContrastSpec
 
@@ -78,8 +78,7 @@ def run_deseq2(
     Returns:
         Tuple of (normalized_counts_df, deseq_results_df, filtering_result).
     """
-    from rnax.config import ContrastSpec
-    
+
     cond_col = contrast_spec.condition_column if contrast_spec else config.design.condition_column
     comp_level = contrast_spec.comparison_level if contrast_spec else config.design.comparison_level
     ref_level = contrast_spec.reference_level if contrast_spec else config.design.reference_level
