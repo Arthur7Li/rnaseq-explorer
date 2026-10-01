@@ -1,0 +1,172 @@
+from pathlib import Path
+import pandas as pd
+import pickle
+import sys
+
+from rnax.config import AnalysisConfig
+from rnax.pipeline.ingest import ingest_data
+from rnax.manifest import build_manifest
+from rnax.pipeline.deseq import run_deseq2
+from rnax.pipeline.report import export_csvs, generate_plots, generate_html_report
+
+cfg_path = config.get("rnax_config", "config/pasilla.yaml")
+cfg = AnalysisConfig.from_yaml(cfg_path)
+out_root = Path(cfg.output.directory)
+
+if cfg.contrasts and len(cfg.contrasts) > 0:
+    contrasts = [c.name for c in cfg.contrasts]
+else:
+    contrasts = ["default"]
+
+rule all:
+    input:
+        [f"{out_root}/{c}/report.html" for c in contrasts]
+
+rule validate:
+    input:
+        counts = cfg.input.counts,
+        metadata = cfg.input.metadata,
+        config = cfg_path
+    output:
+        counts_val = f"{out_root}/.snakemake_tmp/counts.pkl",
+        metadata_val = f"{out_root}/.snakemake_tmp/metadata.pkl",
+        manifest = f"{out_root}/.snakemake_tmp/manifest.pkl"
+    run:
+        counts_df, metadata_df = ingest_data(cfg)
+        cfg.validate_design_matrix(metadata_df)
+        Path(output.counts_val).parent.mkdir(parents=True, exist_ok=True)
+        counts_df.to_pickle(output.counts_val)
+        metadata_df.to_pickle(output.metadata_val)
+        
+        manifest = build_manifest(cfg, input.config)
+        with open(output.manifest, "wb") as f:
+            pickle.dump(manifest, f)
+
+rule deseq2:
+    input:
+        counts = rules.validate.output.counts_val,
+        metadata = rules.validate.output.metadata_val
+    output:
+        results = f"{out_root}/{{contrast}}/results.csv",
+        norm_counts = f"{out_root}/{{contrast}}/normalized_counts.csv",
+        filtering = f"{out_root}/{{contrast}}/filtering.pkl"
+    run:
+        counts_df = pd.read_pickle(input.counts)
+        metadata_df = pd.read_pickle(input.metadata)
+        
+        contrast_spec = None
+        if wildcards.contrast != "default":
+            contrast_spec = next((c for c in cfg.contrasts if c.name == wildcards.contrast), None)
+            if contrast_spec is None:
+                raise ValueError(f"Contrast {wildcards.contrast} not found in config")
+        
+        norm_counts, results, filtering = run_deseq2(counts_df, metadata_df, cfg, contrast_spec=contrast_spec)
+        out_dir = Path(output.results).parent
+        export_csvs(results, norm_counts, out_dir)
+        
+        with open(output.filtering, "wb") as f:
+            pickle.dump(filtering, f)
+
+rule sensitivity:
+    input:
+        results = rules.deseq2.output.results
+    output:
+        res = f"{out_root}/{{contrast}}/sensitivity.pkl"
+    run:
+        if config.get("sensitivity", True):
+            from rnax.pipeline.sensitivity import run_sensitivity_analysis
+            results_df = pd.read_csv(input.results, index_col=0)
+            sens_res = run_sensitivity_analysis(results_df, cfg)
+            with open(output.res, "wb") as f:
+                pickle.dump(sens_res, f)
+        else:
+            with open(output.res, "wb") as f:
+                pickle.dump(None, f)
+
+rule annotate:
+    input:
+        results = rules.deseq2.output.results
+    output:
+        annot = f"{out_root}/{{contrast}}/annotated_results.csv",
+        enrich = f"{out_root}/{{contrast}}/enrichment_results.csv"
+    run:
+        if getattr(cfg, "annotation", None) and cfg.annotation.enabled:
+            from rnax.pipeline.annotation import load_gene_annotations, run_enrichment
+            results_df = pd.read_csv(input.results, index_col=0)
+            annot_dir = Path("data/annotations")
+            annot_df = load_gene_annotations(results_df.index.astype(str).tolist(), cfg.annotation.organism, annot_dir)
+            if not annot_df.empty:
+                annot_res = results_df.join(annot_df, how="left")
+                annot_res.to_csv(output.annot)
+                enrich_df = run_enrichment(annot_res, cfg.annotation.gene_sets, cfg.annotation.organism, cfg.annotation.enrichment_fdr)
+                if enrich_df is not None:
+                    enrich_df.to_csv(output.enrich)
+                else:
+                    Path(output.enrich).touch()
+            else:
+                Path(output.annot).touch()
+                Path(output.enrich).touch()
+        else:
+            Path(output.annot).touch()
+            Path(output.enrich).touch()
+
+rule plots:
+    input:
+        counts = rules.validate.output.counts_val,
+        metadata = rules.validate.output.metadata_val,
+        norm_counts = rules.deseq2.output.norm_counts,
+        results = rules.deseq2.output.results
+    output:
+        alts = f"{out_root}/{{contrast}}/plot_alts.pkl",
+        pca = f"{out_root}/{{contrast}}/pca.png",
+        volcano = f"{out_root}/{{contrast}}/volcano.png"
+    run:
+        raw_counts = pd.read_pickle(input.counts)
+        metadata = pd.read_pickle(input.metadata)
+        norm_counts = pd.read_csv(input.norm_counts, index_col=0)
+        results_df = pd.read_csv(input.results, index_col=0)
+        
+        contrast_spec = None
+        if wildcards.contrast != "default":
+            contrast_spec = next((c for c in cfg.contrasts if c.name == wildcards.contrast), None)
+        
+        out_dir = Path(output.pca).parent
+        alts = generate_plots(cfg, raw_counts, metadata, norm_counts, results_df, contrast_spec, out_dir)
+        with open(output.alts, "wb") as f:
+            pickle.dump(alts, f)
+
+rule report:
+    input:
+        results = rules.deseq2.output.results,
+        manifest = rules.validate.output.manifest,
+        filtering = rules.deseq2.output.filtering,
+        alts = rules.plots.output.alts,
+        sens = rules.sensitivity.output.res,
+        annot = rules.annotate.output.annot,
+        enrich = rules.annotate.output.enrich
+    output:
+        report = f"{out_root}/{{contrast}}/report.html"
+    run:
+        results_df = pd.read_csv(input.results, index_col=0)
+        with open(input.manifest, "rb") as f: manifest = pickle.load(f)
+        with open(input.filtering, "rb") as f: filtering = pickle.load(f)
+        with open(input.alts, "rb") as f: plot_alts = pickle.load(f)
+        with open(input.sens, "rb") as f: sensitivity_res = pickle.load(f)
+        
+        annot_df = None
+        if Path(input.annot).stat().st_size > 0:
+            annot_df = pd.read_csv(input.annot, index_col=0)
+            
+        enrich_df = None
+        if Path(input.enrich).stat().st_size > 0:
+            enrich_df = pd.read_csv(input.enrich, index_col=0)
+            
+        contrast_spec = None
+        if wildcards.contrast != "default":
+            contrast_spec = next((c for c in cfg.contrasts if c.name == wildcards.contrast), None)
+            
+        out_dir = Path(output.report).parent
+        generate_html_report(
+            cfg, results_df, manifest, filtering, plot_alts, 
+            contrast_spec, out_dir, annot_df, enrich_df, sensitivity_res
+        )

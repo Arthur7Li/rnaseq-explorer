@@ -110,3 +110,13 @@ Every entry uses this template:
 **Context:** Users often struggle with arbitrary threshold selection (e.g., FDR=0.05 vs 0.1) and whether their core conclusions hold under alternate criteria.
 **Decision:** We implemented a post-hoc parameter sensitivity analysis module that evaluates a matrix of FDR and Absolute log2FoldChange thresholds on the primary pipeline results. It outputs a summary matrix and a Stability Verdict ("Stable" or "Sensitive") based on whether the number of significant genes fluctuates dramatically.
 **Consequences:** The analysis offers immediate visual confidence in the findings without recalculating the expensive PyDESeq2 generalized linear model. The module sits fully outside the core statistical pathway, acting purely as an interpretive aid in the HTML report.
+
+## [D-12] Snakemake Workflow Orchestration (Phase 5)
+**Date:** 2026-10-01
+**Context:** Power users need a way to run the RNA-seq analysis pipeline in a step-by-step manner with failure recovery, DAG orchestration, and intermediate file tracking.
+**Decision:** We introduced Snakemake as an optional dependency (`rnax[workflow]`). We created a `workflow/Snakefile` that leverages the existing PyDESeq2 pipeline functions (`ingest_data`, `run_deseq2`, `generate_plots`, etc.) using Snakemake's native Python `run:` directive.
+**Rationale:** 
+- Instead of relying on a monolithic CLI command, decomposing the pipeline into explicit rules (`validate`, `deseq2`, `plots`, `sensitivity`, `annotate`, `report`) allows step-wise resumption and avoids completely re-running the DESeq2 model if plotting or reporting fails.
+- We opted to serialize intermediate pandas DataFrames as pickles (`.pkl`) rather than Parquet to avoid introducing a mandatory dependency on `pyarrow` or `fastparquet` for workflow users. 
+- We refactored `report.py` to decouple plotting logic from HTML rendering, facilitating independent rules in Snakemake without disrupting the existing `rnax analyze` CLI behavior.
+**Consequences:** The CLI retains its simple one-shot `rnax analyze` execution flow, while advanced execution scenarios are fully supported by `snakemake -s workflow/Snakefile --config rnax_config=...`.
