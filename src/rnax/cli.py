@@ -82,7 +82,7 @@ def analyze(
         
         from rnax.pipeline.report import generate_report
         
-        def _run_analysis_and_report(contrast_spec: Any, out_dir: Any):
+        def _run_analysis_and_report(contrast_spec: Any, out_dir: Any) -> int:
             norm_counts, results, filtering = run_deseq2(counts_df, metadata_df, cfg, contrast_spec=contrast_spec)
             
             annot_df = None

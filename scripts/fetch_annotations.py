@@ -15,6 +15,7 @@ from pathlib import Path
 import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def sha256sum(filename: Path) -> str:
@@ -32,7 +33,7 @@ def fetch_ensembl(organism: str, output_path: Path) -> None:
     In a real implementation, this would query Ensembl BioMart.
     For demonstration/MVP, we create a dummy file or fetch from a known stable URL.
     """
-    logging.info(f"Fetching annotations for {organism}...")
+    logger.info(f"Fetching annotations for {organism}...")
     
     # We create a dummy CSV for the purpose of the MVP bundle, as a real BioMart query 
     # would require pybiomart or REST API code that is bulky.
@@ -67,7 +68,7 @@ def fetch_ensembl(organism: str, output_path: Path) -> None:
     df.to_csv(output_path, index=False)
     
     sha256 = sha256sum(output_path)
-    logging.info(f"Saved {organism} annotations to {output_path} (SHA-256: {sha256})")
+    logger.info(f"Saved {organism} annotations to {output_path} (SHA-256: {sha256})")
 
 
 def main() -> None:
@@ -83,7 +84,7 @@ def main() -> None:
         out_path = outdir / f"{org}_genes.csv"
         fetch_ensembl(org, out_path)
         
-    logging.info("Annotation fetch complete.")
+    logger.info("Annotation fetch complete.")
 
 
 if __name__ == "__main__":
