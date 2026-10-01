@@ -1,0 +1,108 @@
+Assuming unrestricted shared filesystem usage.
+
+SNAKEMAKE
+=========
+  Date: 2026-10-01 09:30:52
+  Workflow ID: 470aa09e-9e89-4aa5-abdc-c9dc57729914
+  Platform: macOS-26.6.2-arm64-arm-64bit-Mach-O
+  Host: Arthurs-Laptop.local
+  User: arthurli
+  Snakemake version: 9.27.0
+  Python version: 3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 11:23:37) [Clang 14.0.6 ]
+  Command: /Users/arthurli/rnaseq-explorer/.venv/bin/snakemake -c1 -s workflow/Snakefile --config rnax_config=config/pasilla.yaml
+  Snakefile: /Users/arthurli/rnaseq-explorer/workflow/Snakefile
+  Base directory: /Users/arthurli/rnaseq-explorer/workflow
+  Run directory: /Users/arthurli/rnaseq-explorer
+  Working directory: /Users/arthurli/rnaseq-explorer
+  Config file(s): []
+  Config MD5: 7dca443af1fd31e8e0ced252171bbf11
+
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job            count
+-----------  -------
+validate           1
+deseq2             1
+annotate           1
+plots              1
+sensitivity        1
+report             1
+all                1
+total              7
+
+Select jobs to execute...
+Execute 1 jobs...
+[Thu Oct  1 09:30:54 2026]
+localrule validate:
+    input: data/pasilla/counts.csv, data/pasilla/metadata.csv, config/pasilla.yaml
+    output: results/pasilla/.snakemake_tmp/counts.pkl, results/pasilla/.snakemake_tmp/metadata.pkl, results/pasilla/.snakemake_tmp/manifest.pkl
+    jobid: 3
+    reason: Missing output files: results/pasilla/.snakemake_tmp/manifest.pkl, results/pasilla/.snakemake_tmp/counts.pkl, results/pasilla/.snakemake_tmp/metadata.pkl
+    resources: tmpdir=/var/folders/by/f9kxwqx95z935n5z554v3q900000gn/T
+[Thu Oct  1 09:30:59 2026]
+Finished jobid: 3 (Rule: validate)
+1 of 7 steps (14%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Thu Oct  1 09:30:59 2026]
+localrule deseq2:
+    input: results/pasilla/.snakemake_tmp/counts.pkl, results/pasilla/.snakemake_tmp/metadata.pkl
+    output: results/pasilla/default/results.csv, results/pasilla/default/normalized_counts.csv, results/pasilla/default/filtering.pkl
+    jobid: 2
+    reason: Missing output files: results/pasilla/default/results.csv, results/pasilla/default/normalized_counts.csv, results/pasilla/default/filtering.pkl; Input files updated by another job: results/pasilla/.snakemake_tmp/metadata.pkl, results/pasilla/.snakemake_tmp/counts.pkl
+    wildcards: contrast=default
+    resources: tmpdir=/var/folders/by/f9kxwqx95z935n5z554v3q900000gn/T
+[Thu Oct  1 09:31:17 2026]
+Finished jobid: 2 (Rule: deseq2)
+2 of 7 steps (29%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Thu Oct  1 09:31:17 2026]
+localrule sensitivity:
+    input: results/pasilla/default/results.csv
+    output: results/pasilla/default/sensitivity.pkl
+    jobid: 5
+    reason: Missing output files: results/pasilla/default/sensitivity.pkl; Input files updated by another job: results/pasilla/default/results.csv
+    wildcards: contrast=default
+    resources: tmpdir=/var/folders/by/f9kxwqx95z935n5z554v3q900000gn/T
+Select jobs to execute...
+[Thu Oct  1 09:31:22 2026]
+Finished jobid: 5 (Rule: sensitivity)
+3 of 7 steps (43%) done
+Execute 1 jobs...
+[Thu Oct  1 09:31:22 2026]
+localrule annotate:
+    input: results/pasilla/default/results.csv
+    output: results/pasilla/default/annotated_results.csv, results/pasilla/default/enrichment_results.csv
+    jobid: 6
+    reason: Missing output files: results/pasilla/default/annotated_results.csv, results/pasilla/default/enrichment_results.csv; Input files updated by another job: results/pasilla/default/results.csv
+    wildcards: contrast=default
+    resources: tmpdir=/var/folders/by/f9kxwqx95z935n5z554v3q900000gn/T
+Select jobs to execute...
+[Thu Oct  1 09:31:27 2026]
+Finished jobid: 6 (Rule: annotate)
+4 of 7 steps (57%) done
+Execute 1 jobs...
+[Thu Oct  1 09:31:27 2026]
+localrule plots:
+    input: results/pasilla/.snakemake_tmp/counts.pkl, results/pasilla/.snakemake_tmp/metadata.pkl, results/pasilla/default/normalized_counts.csv, results/pasilla/default/results.csv
+    output: results/pasilla/default/plot_alts.pkl, results/pasilla/default/pca.png, results/pasilla/default/volcano.png
+    jobid: 4
+    reason: Missing output files: results/pasilla/default/plot_alts.pkl; Input files updated by another job: results/pasilla/.snakemake_tmp/metadata.pkl, results/pasilla/default/normalized_counts.csv, results/pasilla/default/results.csv, results/pasilla/.snakemake_tmp/counts.pkl
+    wildcards: contrast=default
+    resources: tmpdir=/var/folders/by/f9kxwqx95z935n5z554v3q900000gn/T
+[Thu Oct  1 09:31:32 2026]
+Error in rule plots:
+    message: None
+    jobid: 4
+    input: results/pasilla/.snakemake_tmp/counts.pkl, results/pasilla/.snakemake_tmp/metadata.pkl, results/pasilla/default/normalized_counts.csv, results/pasilla/default/results.csv
+    output: results/pasilla/default/plot_alts.pkl, results/pasilla/default/pca.png, results/pasilla/default/volcano.png
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error messages
+Complete log(s): /Users/arthurli/rnaseq-explorer/.snakemake/log/2026-10-01T093052.293762.snakemake.log
+Elapsed time: 0:00:39.864063
+WorkflowError:
+At least one job did not complete successfully.

@@ -7,7 +7,7 @@ name = "rnax"
 version = "0.1.0"
 description = "RNA-seq Explorer: Reproducible bulk RNA-seq differential-expression analysis"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "typer>=0.9.0",
     "pydantic>=2.0.0",
@@ -21,6 +21,8 @@ dependencies = [
     "gseapy>=1.0",
 ]
 
+[project.optional-dependencies]
+workflow = ["snakemake>=8.0"]
 [project.scripts]
 rnax = "rnax.cli:app"
 

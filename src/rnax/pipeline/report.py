@@ -20,94 +20,44 @@ from rnax.pipeline.plots import (
 )
 
 
-def generate_report(
+def export_csvs(
+    results_df: pd.DataFrame,
+    norm_counts: pd.DataFrame,
+    out_dir: Path,
+    annot_df: "pd.DataFrame | None" = None,
+    enrich_df: "pd.DataFrame | None" = None,
+) -> None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    results_df.to_csv(out_dir / "results.csv")
+    if annot_df is not None and not annot_df.empty:
+        annotated_results = results_df.join(annot_df, how="left")
+        annotated_results.to_csv(out_dir / "annotated_results.csv")
+    if enrich_df is not None and not enrich_df.empty:
+        enrich_df.to_csv(out_dir / "enrichment_results.csv")
+    norm_counts.to_csv(out_dir / "normalized_counts.csv")
+
+
+def generate_plots(
     config: AnalysisConfig,
     raw_counts: pd.DataFrame,
     metadata: pd.DataFrame,
     norm_counts: pd.DataFrame,
     results_df: pd.DataFrame,
-    manifest: ReproducibilityManifest,
-    filtering: FilteringResult,
     contrast_spec: "ContrastSpec | None" = None,
     output_dir: Path | None = None,
-    annot_df: "pd.DataFrame | None" = None,
-    enrich_df: "pd.DataFrame | None" = None,
-    sensitivity_res: "Any | None" = None,
-) -> None:
-    """
-    Generate plots, export CSVs, and render the static HTML report.
-    """
-
+) -> dict[str, str]:
     out_dir = output_dir if output_dir is not None else Path(config.output.directory)
     out_dir.mkdir(parents=True, exist_ok=True)
-    
     cond_col = contrast_spec.condition_column if contrast_spec else config.design.condition_column
     
-    # Export CSVs
-    results_path = out_dir / "results.csv"
-    results_df.to_csv(results_path)
+    alt_library_sizes = plot_library_sizes(raw_counts, metadata, cond_col, str(out_dir / "library_sizes.png"))
+    alt_pca = plot_pca(norm_counts, metadata, cond_col, str(out_dir / "pca.png"))
+    alt_volcano = plot_volcano(results_df, config.thresholds.fdr, config.thresholds.absolute_log2_fold_change, str(out_dir / "volcano.png"))
+    alt_sample_distances = plot_sample_distances(norm_counts, metadata, cond_col, config.design.paired_or_block_column, str(out_dir / "sample_distances.png"))
+    alt_ma = plot_ma(results_df, config.thresholds.fdr, config.thresholds.absolute_log2_fold_change, str(out_dir / "ma_plot.png"))
+    alt_top_genes_heatmap = plot_top_genes_heatmap(norm_counts, results_df, metadata, cond_col, config.design.paired_or_block_column, config.thresholds.top_n_genes, str(out_dir / "top_genes_heatmap.png"))
     
-    if annot_df is not None and not annot_df.empty:
-        # Join annotations
-        annotated_results = results_df.join(annot_df, how="left")
-        annot_path = out_dir / "annotated_results.csv"
-        annotated_results.to_csv(annot_path)
-        
-    if enrich_df is not None and not enrich_df.empty:
-        enrich_path = out_dir / "enrichment_results.csv"
-        enrich_df.to_csv(enrich_path)
-    
-    norm_counts_path = out_dir / "normalized_counts.csv"
-    norm_counts.to_csv(norm_counts_path)
-    
-    # Generate Plots
-    alt_library_sizes = plot_library_sizes(
-        raw_counts, 
-        metadata, 
-        cond_col, 
-        str(out_dir / "library_sizes.png")
-    )
-    
-    alt_pca = plot_pca(
-        norm_counts, 
-        metadata, 
-        cond_col, 
-        str(out_dir / "pca.png")
-    )
-    
-    alt_volcano = plot_volcano(
-        results_df, 
-        config.thresholds.fdr, 
-        config.thresholds.absolute_log2_fold_change, 
-        str(out_dir / "volcano.png")
-    )
-    
-    alt_sample_distances = plot_sample_distances(
-        norm_counts, 
-        metadata, 
-        cond_col, 
-        config.design.paired_or_block_column, 
-        str(out_dir / "sample_distances.png")
-    )
-    
-    alt_ma = plot_ma(
-        results_df, 
-        config.thresholds.fdr, 
-        config.thresholds.absolute_log2_fold_change, 
-        str(out_dir / "ma_plot.png")
-    )
-    
-    alt_top_genes_heatmap = plot_top_genes_heatmap(
-        norm_counts, 
-        results_df, 
-        metadata, 
-        cond_col, 
-        config.design.paired_or_block_column, 
-        config.thresholds.top_n_genes, 
-        str(out_dir / "top_genes_heatmap.png")
-    )
-    
-    plot_alts = {
+    return {
         "library_sizes": alt_library_sizes or "Library Sizes per Sample",
         "pca": alt_pca or "PCA of Normalized Counts",
         "volcano": alt_volcano or "Volcano Plot",
@@ -115,17 +65,31 @@ def generate_report(
         "ma": alt_ma or "MA Plot",
         "top_genes_heatmap": alt_top_genes_heatmap or "Top DE Genes Heatmap",
     }
+
+
+def generate_html_report(
+    config: AnalysisConfig,
+    results_df: pd.DataFrame,
+    manifest: ReproducibilityManifest,
+    filtering: FilteringResult,
+    plot_alts: dict[str, str],
+    contrast_spec: "ContrastSpec | None" = None,
+    output_dir: Path | None = None,
+    annot_df: "pd.DataFrame | None" = None,
+    enrich_df: "pd.DataFrame | None" = None,
+    sensitivity_res: "Any | None" = None,
+) -> None:
+    out_dir = output_dir if output_dir is not None else Path(config.output.directory)
+    out_dir.mkdir(parents=True, exist_ok=True)
     
-    # Calculate sig stats
     fdr_thresh = config.thresholds.fdr
     lfc_thresh = config.thresholds.absolute_log2_fold_change
+    total_genes = int(results_df.shape[0])
     
     sig_mask = (results_df["padj"] < fdr_thresh) & (results_df["log2FoldChange"].abs() >= lfc_thresh)
-    sig_up = (sig_mask & (results_df["log2FoldChange"] > 0)).sum()
-    sig_down = (sig_mask & (results_df["log2FoldChange"] < 0)).sum()
-    total_genes = results_df.shape[0]
+    sig_up = int((sig_mask & (results_df["log2FoldChange"] > 0)).sum())
+    sig_down = int((sig_mask & (results_df["log2FoldChange"] < 0)).sum())
     
-    # Get top genes for report table (with annotations if available)
     disp_df = results_df.copy()
     if annot_df is not None and not annot_df.empty:
         disp_df = disp_df.join(annot_df, how="left")
@@ -138,7 +102,6 @@ def generate_report(
         enrich_disp = enrich_df[enrich_df["Adjusted P-value"] < config.annotation.enrichment_fdr] if "Adjusted P-value" in enrich_df.columns else enrich_df
         enrichment_records = enrich_disp.head(20).to_dict(orient="records")
     
-    # Render HTML
     template_dir = Path(__file__).parent.parent / "templates"
     env = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=True)
     template = env.get_template("report.html.j2")
@@ -160,3 +123,27 @@ def generate_report(
     report_path = out_dir / "report.html"
     with open(report_path, "w") as f:
         f.write(html_content)
+
+
+def generate_report(
+    config: AnalysisConfig,
+    raw_counts: pd.DataFrame,
+    metadata: pd.DataFrame,
+    norm_counts: pd.DataFrame,
+    results_df: pd.DataFrame,
+    manifest: ReproducibilityManifest,
+    filtering: FilteringResult,
+    contrast_spec: "ContrastSpec | None" = None,
+    output_dir: Path | None = None,
+    annot_df: "pd.DataFrame | None" = None,
+    enrich_df: "pd.DataFrame | None" = None,
+    sensitivity_res: "Any | None" = None,
+) -> None:
+    """
+    Generate plots, export CSVs, and render the static HTML report.
+    """
+    out_dir = output_dir if output_dir is not None else Path(config.output.directory)
+    
+    export_csvs(results_df, norm_counts, out_dir, annot_df, enrich_df)
+    plot_alts = generate_plots(config, raw_counts, metadata, norm_counts, results_df, contrast_spec, out_dir)
+    generate_html_report(config, results_df, manifest, filtering, plot_alts, contrast_spec, out_dir, annot_df, enrich_df, sensitivity_res)

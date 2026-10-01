@@ -2,7 +2,7 @@ import hashlib
 import platform
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
@@ -82,7 +82,7 @@ def build_manifest(config: AnalysisConfig, config_path: Path) -> Reproducibility
         config_sha256=_sha256(config_path),
         counts_sha256=_sha256(Path(config.input.counts)),
         metadata_sha256=_sha256(Path(config.input.metadata)),
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
         random_seed=config.output.random_seed,
         command=" ".join(sys.argv)
     )
