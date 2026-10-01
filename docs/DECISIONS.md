@@ -104,3 +104,9 @@ Every entry uses this template:
 **Context:** Biological interpretation of DE results requires gene symbols and pathway over-representation analysis (ORA). However, external network calls during analysis break reproducibility and air-gapped usability.
 **Decision:** We implemented an optional annotation/enrichment module that relies entirely on locally bundled CSVs (for annotations) and local GMT files (for enrichment) via `gseapy`. All network retrieval logic is confined to an offline setup script (`scripts/fetch_annotations.py`).
 **Consequences:** The analysis remains strictly reproducible without runtime network dependencies. Enrichment results are heavily caveated as exploratory. The project bundle size increases slightly to accommodate small annotation CSVs.
+
+### D-11: Parameter Sensitivity Analysis Module
+**Date:** 2026-09-30
+**Context:** Users often struggle with arbitrary threshold selection (e.g., FDR=0.05 vs 0.1) and whether their core conclusions hold under alternate criteria.
+**Decision:** We implemented a post-hoc parameter sensitivity analysis module that evaluates a matrix of FDR and Absolute log2FoldChange thresholds on the primary pipeline results. It outputs a summary matrix and a Stability Verdict ("Stable" or "Sensitive") based on whether the number of significant genes fluctuates dramatically.
+**Consequences:** The analysis offers immediate visual confidence in the findings without recalculating the expensive PyDESeq2 generalized linear model. The module sits fully outside the core statistical pathway, acting purely as an interpretive aid in the HTML report.

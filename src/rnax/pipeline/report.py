@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader
@@ -32,6 +32,7 @@ def generate_report(
     output_dir: Path | None = None,
     annot_df: "pd.DataFrame | None" = None,
     enrich_df: "pd.DataFrame | None" = None,
+    sensitivity_res: "Any | None" = None,
 ) -> None:
     """
     Generate plots, export CSVs, and render the static HTML report.
@@ -153,6 +154,7 @@ def generate_report(
         plot_alts=plot_alts,
         top_genes=top_genes_records,
         enrichment=enrichment_records,
+        sensitivity=sensitivity_res,
     )
     
     report_path = out_dir / "report.html"
