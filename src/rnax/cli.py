@@ -48,6 +48,13 @@ def analyze(
             help="Path to the output directory. Overrides config if provided.",
         )
     ] = None,
+    sensitivity: Annotated[
+        bool,
+        typer.Option(
+            "--sensitivity/--no-sensitivity",
+            help="Run parameter sensitivity analysis on the results.",
+        )
+    ] = True,
 ) -> None:
     """
     Run the exploratory RNA-seq differential expression workflow.
@@ -98,9 +105,16 @@ def analyze(
                     typer.echo("  -> Running pathway enrichment...")
                     enrich_df = run_enrichment(temp_res, cfg.annotation.gene_sets, cfg.annotation.organism, cfg.annotation.enrichment_fdr)
             
+            sensitivity_res = None
+            if sensitivity:
+                from rnax.pipeline.sensitivity import run_sensitivity_analysis
+                typer.echo("  -> Running parameter sensitivity analysis...")
+                sensitivity_res = run_sensitivity_analysis(results, cfg)
+
             generate_report(
                 cfg, counts_df, metadata_df, norm_counts, results, manifest, filtering,
-                contrast_spec=contrast_spec, output_dir=out_dir, annot_df=annot_df, enrich_df=enrich_df
+                contrast_spec=contrast_spec, output_dir=out_dir, annot_df=annot_df, enrich_df=enrich_df,
+                sensitivity_res=sensitivity_res
             )
             return int(results.shape[0])
             

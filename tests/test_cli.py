@@ -21,7 +21,8 @@ def test_analyze_help():
 def test_analyze_with_valid_config(mocker, valid_config_file):
     import pandas as pd
     mock_filtering = mocker.MagicMock()
-    mocker.patch("rnax.pipeline.deseq.run_deseq2", return_value=(pd.DataFrame(), pd.DataFrame([1, 2]), mock_filtering))
+    mock_results = pd.DataFrame({"padj": [0.01, 0.05], "log2FoldChange": [1.5, -2.0]})
+    mocker.patch("rnax.pipeline.deseq.run_deseq2", return_value=(pd.DataFrame(), mock_results, mock_filtering))
     mocker.patch("rnax.pipeline.report.generate_report")
     result = runner.invoke(app, ["analyze", "--config", str(valid_config_file)])
     assert result.exit_code == 0

@@ -202,6 +202,38 @@
     </div>
     {% endif %}
 
+    {% if sensitivity %}
+    <h2>Parameter Sensitivity Analysis</h2>
+    <div class="alert" style="background-color: #d1ecf1; color: #0c5460; border-color: #bee5eb;">
+        <strong>Verdict: {{ sensitivity.verdict }}</strong><br>
+        {{ sensitivity.rationale }}
+    </div>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+            <thead>
+                <tr>
+                    <th>FDR Threshold</th>
+                    <th>|Log2FC| Threshold</th>
+                    <th>Up-regulated</th>
+                    <th>Down-regulated</th>
+                    <th>Total Significant</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in sensitivity.table %}
+                <tr {% if row.fdr == config.thresholds.fdr and row.lfc == config.thresholds.absolute_log2_fold_change %}style="font-weight: bold; background-color: #e2e3e5;"{% endif %}>
+                    <td>{{ row.fdr }}</td>
+                    <td>{{ row.lfc }}</td>
+                    <td>{{ row.up }}</td>
+                    <td>{{ row.down }}</td>
+                    <td>{{ row.total_sig }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
     {% if config.dataset_limitations %}
     <h2>Dataset-Specific Limitations</h2>
     <div class="alert" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba;">
