@@ -98,3 +98,9 @@ Every entry uses this template:
 - Decision: Add an optional `contrasts` list to `AnalysisConfig`. When provided, the CLI loops over the contrasts, running `DeseqStats` for each and outputting distinct subdirectories and an `index.html`. Add rigorous design matrix validation to check for confounding variables and minimum replicate counts. The single-contrast `design` block remains the fallback for backward compatibility.
 - Alternatives considered: Using interaction terms (rejected — too complex for a standard automated pipeline); requiring users to write custom Python scripts (rejected — reduces reproducibility and accessibility).
 - Consequences: The tool can now naturally support complex multi-group experimental designs while keeping the configuration simple. Backward compatibility is strictly maintained.
+
+### D-10: Optional Gene Annotation and Pathway Enrichment Module
+**Date:** 2026-09-30
+**Context:** Biological interpretation of DE results requires gene symbols and pathway over-representation analysis (ORA). However, external network calls during analysis break reproducibility and air-gapped usability.
+**Decision:** We implemented an optional annotation/enrichment module that relies entirely on locally bundled CSVs (for annotations) and local GMT files (for enrichment) via `gseapy`. All network retrieval logic is confined to an offline setup script (`scripts/fetch_annotations.py`).
+**Consequences:** The analysis remains strictly reproducible without runtime network dependencies. Enrichment results are heavily caveated as exploratory. The project bundle size increases slightly to accommodate small annotation CSVs.

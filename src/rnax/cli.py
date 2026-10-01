@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 from pydantic import ValidationError
@@ -82,13 +82,35 @@ def analyze(
         
         from rnax.pipeline.report import generate_report
         
+        def _run_analysis_and_report(contrast_spec: Any, out_dir: Any) -> int:
+            norm_counts, results, filtering = run_deseq2(counts_df, metadata_df, cfg, contrast_spec=contrast_spec)
+            
+            annot_df = None
+            enrich_df = None
+            if cfg.annotation.enabled:
+                from rnax.pipeline.annotation import load_gene_annotations, run_enrichment
+                typer.echo("  -> Loading gene annotations...")
+                annot_dir = Path("data/annotations")
+                annot_df = load_gene_annotations(results.index.astype(str).tolist(), cfg.annotation.organism, annot_dir)
+                
+                if not annot_df.empty:
+                    temp_res = results.join(annot_df, how="left")
+                    typer.echo("  -> Running pathway enrichment...")
+                    enrich_df = run_enrichment(temp_res, cfg.annotation.gene_sets, cfg.annotation.organism, cfg.annotation.enrichment_fdr)
+            
+            generate_report(
+                cfg, counts_df, metadata_df, norm_counts, results, manifest, filtering,
+                contrast_spec=contrast_spec, output_dir=out_dir, annot_df=annot_df, enrich_df=enrich_df
+            )
+            return int(results.shape[0])
+            
         if cfg.contrasts and len(cfg.contrasts) > 0:
             typer.echo(f"Running multiple contrasts: {[c.name for c in cfg.contrasts]}")
+            total_genes_analyzed = 0
             for contrast in cfg.contrasts:
                 typer.echo(f"  -> Running contrast: {contrast.name}")
-                norm_counts, results, filtering = run_deseq2(counts_df, metadata_df, cfg, contrast_spec=contrast)
                 out_dir = Path(cfg.output.directory) / contrast.name
-                generate_report(cfg, counts_df, metadata_df, norm_counts, results, manifest, filtering, contrast_spec=contrast, output_dir=out_dir)
+                total_genes_analyzed = _run_analysis_and_report(contrast, out_dir)
                 
             # generate index.html
             from jinja2 import Environment, FileSystemLoader
@@ -100,15 +122,11 @@ def analyze(
             out_root.mkdir(parents=True, exist_ok=True)
             (out_root / "index.html").write_text(index_html)
             
-            typer.echo("Multi-contrast analysis complete.")
+            typer.echo(f"Multi-contrast analysis complete. {total_genes_analyzed} genes analyzed per contrast.")
         else:
             typer.echo("Running single contrast differential expression analysis...")
-            norm_counts, results, filtering = run_deseq2(counts_df, metadata_df, cfg)
-            
-            typer.echo("Generating report and plots...")
-            generate_report(cfg, counts_df, metadata_df, norm_counts, results, manifest, filtering)
-            
-            typer.echo(f"Differential expression complete. {results.shape[0]} genes analyzed.")
+            total_genes_analyzed = _run_analysis_and_report(None, None)
+            typer.echo(f"Differential expression complete. {total_genes_analyzed} genes analyzed.")
             
         typer.echo(f"Output saved to: {cfg.output.directory}")
         

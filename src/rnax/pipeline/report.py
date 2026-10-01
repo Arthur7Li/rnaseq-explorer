@@ -29,7 +29,9 @@ def generate_report(
     manifest: ReproducibilityManifest,
     filtering: FilteringResult,
     contrast_spec: "ContrastSpec | None" = None,
-    output_dir: Path | None = None
+    output_dir: Path | None = None,
+    annot_df: "pd.DataFrame | None" = None,
+    enrich_df: "pd.DataFrame | None" = None,
 ) -> None:
     """
     Generate plots, export CSVs, and render the static HTML report.
@@ -43,6 +45,16 @@ def generate_report(
     # Export CSVs
     results_path = out_dir / "results.csv"
     results_df.to_csv(results_path)
+    
+    if annot_df is not None and not annot_df.empty:
+        # Join annotations
+        annotated_results = results_df.join(annot_df, how="left")
+        annot_path = out_dir / "annotated_results.csv"
+        annotated_results.to_csv(annot_path)
+        
+    if enrich_df is not None and not enrich_df.empty:
+        enrich_path = out_dir / "enrichment_results.csv"
+        enrich_df.to_csv(enrich_path)
     
     norm_counts_path = out_dir / "normalized_counts.csv"
     norm_counts.to_csv(norm_counts_path)
@@ -112,6 +124,19 @@ def generate_report(
     sig_down = (sig_mask & (results_df["log2FoldChange"] < 0)).sum()
     total_genes = results_df.shape[0]
     
+    # Get top genes for report table (with annotations if available)
+    disp_df = results_df.copy()
+    if annot_df is not None and not annot_df.empty:
+        disp_df = disp_df.join(annot_df, how="left")
+    
+    top_genes_df = disp_df[sig_mask].sort_values("padj").head(50)
+    top_genes_records = top_genes_df.reset_index().to_dict(orient="records")
+    
+    enrichment_records = []
+    if enrich_df is not None and not enrich_df.empty:
+        enrich_disp = enrich_df[enrich_df["Adjusted P-value"] < config.annotation.enrichment_fdr] if "Adjusted P-value" in enrich_df.columns else enrich_df
+        enrichment_records = enrich_disp.head(20).to_dict(orient="records")
+    
     # Render HTML
     template_dir = Path(__file__).parent.parent / "templates"
     env = Environment(loader=FileSystemLoader(str(template_dir)), autoescape=True)
@@ -126,6 +151,8 @@ def generate_report(
         manifest=manifest,
         filtering=filtering,
         plot_alts=plot_alts,
+        top_genes=top_genes_records,
+        enrichment=enrichment_records,
     )
     
     report_path = out_dir / "report.html"
