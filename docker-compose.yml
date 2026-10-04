@@ -1,0 +1,8 @@
+services:
+  rnax:
+    build: .
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+      - ./results:/app/results
+    command: ["analyze", "--config", "config/pasilla.yaml"]

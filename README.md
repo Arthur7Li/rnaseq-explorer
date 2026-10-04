@@ -38,6 +38,37 @@ open results/pasilla/report.html
 
 ---
 
+## Container Execution (Docker)
+
+RNA-seq Explorer can be run natively via `uv` (as shown above) or within an isolated Docker container to guarantee environment reproducibility across different operating systems.
+
+### Option 1: Docker Compose (Recommended)
+We provide a `docker-compose.yml` that automatically handles volume mounts for your `config`, `data`, and `results` directories.
+
+```bash
+# Build the image and run the pasilla analysis
+docker compose run --rm rnax analyze --config config/pasilla.yaml
+```
+
+### Option 2: Docker CLI
+If you prefer raw Docker commands, you must manually mount your local directories:
+
+```bash
+# Build the image
+docker build -t rnax .
+
+# Run the container with volume mounts
+docker run --rm \
+  -v $(pwd)/config:/app/config \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/results:/app/results \
+  rnax analyze --config config/pasilla.yaml
+```
+
+**Note:** Both the native `uv run rnax` route and the container route are fully supported and produce mathematically identical results.
+
+---
+
 ## Supported Datasets
 
 RNA-seq Explorer provides automated acquisition scripts and provenance logs for three benchmark datasets:
