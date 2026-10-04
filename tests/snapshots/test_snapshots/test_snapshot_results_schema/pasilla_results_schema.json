@@ -1,0 +1,15 @@
+{
+  "shape": [
+    8423,
+    6
+  ],
+  "index_name": "gene_id",
+  "columns": {
+    "baseMean": "float64",
+    "log2FoldChange": "float64",
+    "lfcSE": "float64",
+    "stat": "float64",
+    "pvalue": "float64",
+    "padj": "float64"
+  }
+}

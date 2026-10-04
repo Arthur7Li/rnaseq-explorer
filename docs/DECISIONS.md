@@ -127,3 +127,10 @@ Every entry uses this template:
 **Decision:** We containerized the RNA-seq Explorer via a `python:3.12-slim` multi-stage build `Dockerfile` and provided a `docker-compose.yml` file. We used `uv` in the builder stage for fast dependency resolution.
 **Rationale:** A multi-stage build minimizes the final image size and attack surface. Keeping the native execution path supported means developers or users without Docker can still run the tool easily via `uv run`. 
 **Consequences:** Users can choose to run `rnax` via `uv run` natively, or `docker compose run` via Docker, yielding identical analysis results.
+
+## [D-14] Golden-File / Snapshot Testing (Phase 7)
+**Date:** 2026-10-03
+**Context:** Need a fast, reliable way to prevent unintended regressions in the structure and schemas of our pipeline outputs without hardcoding fragile assertions.
+**Decision:** We adopted `pytest-snapshot` for golden-file testing of pipeline artifacts (specifically `results.csv` schema, `normalized_counts.csv` shape, and `report.html` section headings).
+**Rationale:** Standard assertions for large text files or data schemas become verbose and difficult to maintain. By utilizing a fixed random seed within our `AnalysisConfig` during testing, we ensure that PyDESeq2 produces entirely deterministic outputs. Snapshot testing allows us to trivially capture these outputs and bump them easily (`--snapshot-update`) when intentional changes are made.
+**Consequences:** Developers must run `pytest --snapshot-update` when making intentional changes that alter pipeline output schemas or report structure, and verify the resulting file diffs in version control.
