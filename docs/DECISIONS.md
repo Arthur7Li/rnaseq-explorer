@@ -120,3 +120,10 @@ Every entry uses this template:
 - We opted to serialize intermediate pandas DataFrames as pickles (`.pkl`) rather than Parquet to avoid introducing a mandatory dependency on `pyarrow` or `fastparquet` for workflow users. 
 - We refactored `report.py` to decouple plotting logic from HTML rendering, facilitating independent rules in Snakemake without disrupting the existing `rnax analyze` CLI behavior.
 **Consequences:** The CLI retains its simple one-shot `rnax analyze` execution flow, while advanced execution scenarios are fully supported by `snakemake -s workflow/Snakefile --config rnax_config=...`.
+
+## [D-13] Containerize with Docker (Phase 6)
+**Date:** 2026-10-03
+**Context:** Need to ensure reproducibility of the execution environment across different operating systems.
+**Decision:** We containerized the RNA-seq Explorer via a `python:3.12-slim` multi-stage build `Dockerfile` and provided a `docker-compose.yml` file. We used `uv` in the builder stage for fast dependency resolution.
+**Rationale:** A multi-stage build minimizes the final image size and attack surface. Keeping the native execution path supported means developers or users without Docker can still run the tool easily via `uv run`. 
+**Consequences:** Users can choose to run `rnax` via `uv run` natively, or `docker compose run` via Docker, yielding identical analysis results.

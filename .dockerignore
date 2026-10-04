@@ -1,0 +1,13 @@
+.git
+.venv
+results/
+output/
+.mypy_cache
+.ruff_cache
+.pytest_cache
+__pycache__
+.snakemake
+.snakemake_tmp
+.DS_Store
+*.pyc
+*.pyo

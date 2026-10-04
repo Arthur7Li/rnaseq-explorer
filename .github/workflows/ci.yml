@@ -88,3 +88,24 @@ jobs:
           test -f results/pasilla/top_genes_heatmap.png
           grep -q "LIMITATION NOTICE" results/pasilla/report.html
 
+
+  docker-test:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t rnax .
+
+      - name: Run Smoke Test in Docker
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/config:/app/config \
+            -v ${{ github.workspace }}/data:/app/data \
+            -v ${{ github.workspace }}/results:/app/results \
+            rnax analyze --config config/pasilla.yaml
+          
+          test -f results/pasilla/report.html
+          test -f results/pasilla/results.csv
