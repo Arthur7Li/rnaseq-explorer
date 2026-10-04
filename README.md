@@ -78,12 +78,14 @@ RNA-seq Explorer provides automated acquisition scripts and provenance logs for 
 | **Airway** | *Homo sapiens* | 8 (4 treated, 4 untreated) | Paired (blocking on cell line) | Effect of dexamethasone on airway smooth muscle cells | `config/airway.yaml` |
 | **Pasilla** | *Drosophila melanogaster* | 7 (3 knockdown, 4 control) | Unpaired two-group | Transcriptional consequences of *pasilla* (splicing factor) RNAi | `config/pasilla.yaml` |
 | **Bottomly** | *Mus musculus* | 10 (5 C57BL/6J, 5 DBA/2J) | Unpaired two-group | Baseline striatal gene expression differences across inbred mouse strains | `config/bottomly.yaml` |
+| **Zebrafish** | *Danio rerio* | 6 (3 WT, 3 KO) | Unpaired two-group | Transcriptional consequences of neurexin-1 double-knockout | `config/geo-case-study.yaml` |
 
 To acquire any dataset:
 ```bash
 uv run python scripts/acquire_pasilla.py
 uv run python scripts/acquire_airway.py
 uv run python scripts/acquire_bottomly.py
+uv run python scripts/acquire_geo_case_study.py
 ```
 
 ---
@@ -200,6 +202,7 @@ When using RNA-seq Explorer or its bundled datasets, please cite:
 - **Airway Dataset**: Himes, B. E. et al. (2014). RNA-Seq transcriptome profiling identifies CRISPLD2 as a glucocorticoid responsive gene that modulates cytokine function in airway smooth muscle cells. *PLoS ONE*, 9(6), e99625.
 - **Pasilla Dataset**: Brooks, A. N. et al. (2011). Conservation of an RNA regulatory map between *Drosophila* and mammals. *Genome Research*, 21(2), 193–202.
 - **Bottomly Dataset**: Bottomly, D. et al. (2011). Evaluating gene expression in C57BL/6J and DBA/2J mouse striatum using RNA-Seq and microarrays. *PLoS ONE*, 6(3), e17820.
+- **Zebrafish Dataset**: Elegheert, J. et al. (2026). Modelling mental disorders in zebrafish. Neurexins severely modulate anxiety, social behaviors and aggression. *[GEO: GSE324987]*
 
 ---
 

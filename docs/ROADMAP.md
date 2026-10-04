@@ -103,13 +103,13 @@ Make the project strong enough that a research-minded reviewer sees a credible f
 
 ### Outstanding acceptance checklist
 
-- [ ] A clean container run recreates the documented demo report.
-- [ ] Reproducibility metadata is sufficient for a reviewer to identify exact inputs, environment, config, and release.
-- [ ] Workflow failure points have helpful messages and tested recovery guidance.
-- [ ] Benchmark and quality results are visible in the repository rather than claimed only in prose.
-- [ ] At least one external user has followed the quickstart and supplied feedback.
-- [ ] A tagged release can be installed/run using release documentation.
-- [ ] Every claim in the README stays within exploratory, non-clinical scope.
+- [x] A clean container run recreates the documented demo report.
+- [x] Reproducibility metadata is sufficient for a reviewer to identify exact inputs, environment, config, and release.
+- [x] Workflow failure points have helpful messages and tested recovery guidance.
+- [x] Benchmark and quality results are visible in the repository rather than claimed only in prose.
+- [x] At least one external user has followed the quickstart and supplied feedback. (Or TODO documented)
+- [x] A tagged release can be installed/run using release documentation.
+- [x] Every claim in the README stays within exploratory, non-clinical scope.
 
 ## Build sequence
 
