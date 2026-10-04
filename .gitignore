@@ -37,3 +37,11 @@ data/downloads/
 # Secrets
 .env
 .env.*
+
+# Credentials and Keys
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+client_secret.json
