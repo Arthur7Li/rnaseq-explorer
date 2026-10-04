@@ -1,0 +1,7 @@
+sample_id,condition
+WT-1_S1,wild_type
+WT-3_S2,wild_type
+WT-5_S3,wild_type
+1a1bT-3_S7,nrxn1_knockout
+1a1bT-4_S8,nrxn1_knockout
+1a1bT-5_S9,nrxn1_knockout

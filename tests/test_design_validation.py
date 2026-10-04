@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 import pytest
 
@@ -5,7 +7,7 @@ from rnax.config import AnalysisConfig, ContrastSpec
 
 
 @pytest.fixture
-def mock_config():
+def mock_config() -> Any:
     config = AnalysisConfig.model_construct()
     config.design = type("obj", (object,), {
         "condition_column": "condition",
@@ -17,7 +19,7 @@ def mock_config():
     return config
 
 
-def test_validate_design_matrix_success(mock_config):
+def test_validate_design_matrix_success(mock_config: Any) -> None:
     metadata = pd.DataFrame({
         "condition": ["A", "A", "A", "B", "B", "B"]
     })
@@ -25,7 +27,7 @@ def test_validate_design_matrix_success(mock_config):
     assert len(warnings) == 0
 
 
-def test_validate_design_matrix_missing_condition_column(mock_config):
+def test_validate_design_matrix_missing_condition_column(mock_config: Any) -> None:
     metadata = pd.DataFrame({
         "wrong_column": ["A", "A", "A", "B", "B", "B"]
     })
@@ -33,7 +35,7 @@ def test_validate_design_matrix_missing_condition_column(mock_config):
         mock_config.validate_design_matrix(metadata)
 
 
-def test_validate_design_matrix_missing_level(mock_config):
+def test_validate_design_matrix_missing_level(mock_config: Any) -> None:
     metadata = pd.DataFrame({
         "condition": ["A", "A", "A", "C", "C", "C"]
     })
@@ -41,7 +43,7 @@ def test_validate_design_matrix_missing_level(mock_config):
         mock_config.validate_design_matrix(metadata)
 
 
-def test_validate_design_matrix_low_sample_size_warning(mock_config):
+def test_validate_design_matrix_low_sample_size_warning(mock_config: Any) -> None:
     metadata = pd.DataFrame({
         "condition": ["A", "A", "B", "B", "B"]
     })
@@ -50,7 +52,7 @@ def test_validate_design_matrix_low_sample_size_warning(mock_config):
     assert "has < 3 replicates" in warnings[0]
 
 
-def test_validate_design_matrix_perfect_confounding(mock_config):
+def test_validate_design_matrix_perfect_confounding(mock_config: Any) -> None:
     mock_config.design.paired_or_block_column = "block"
     # Block 1 only has A, Block 2 only has B
     metadata = pd.DataFrame({
@@ -61,7 +63,7 @@ def test_validate_design_matrix_perfect_confounding(mock_config):
         mock_config.validate_design_matrix(metadata)
 
 
-def test_validate_design_matrix_multiple_contrasts():
+def test_validate_design_matrix_multiple_contrasts() -> None:
     config = AnalysisConfig.model_construct()
     config.design = type("obj", (object,), {
         "condition_column": "condition",
@@ -82,7 +84,7 @@ def test_validate_design_matrix_multiple_contrasts():
     assert len(warnings) == 0
 
 
-def test_validate_design_matrix_multiple_contrasts_error():
+def test_validate_design_matrix_multiple_contrasts_error() -> None:
     config = AnalysisConfig.model_construct()
     config.design = type("obj", (object,), {
         "condition_column": "condition",

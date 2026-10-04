@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import pytest
@@ -8,7 +9,7 @@ from rnax.pipeline.report import generate_report
 
 
 @pytest.fixture
-def mock_config(tmp_path):
+def mock_config(tmp_path: Any) -> Any:
     config = AnalysisConfig.model_construct()
     config.output = type("obj", (object,), {"directory": str(tmp_path), "report_title": "Test Title"})()
     config.design = type("obj", (object,), {
@@ -31,14 +32,14 @@ def mock_config(tmp_path):
 
 
 @pytest.fixture
-def dummy_dfs():
+def dummy_dfs() -> Any:
     counts = pd.DataFrame({"sample1": [10], "sample2": [20]}, index=["gene1"])
     metadata = pd.DataFrame({"condition": ["A", "B"]}, index=["sample1", "sample2"])
     results = pd.DataFrame({"log2FoldChange": [1.5], "padj": [0.01]}, index=["gene1"])
     return counts, metadata, counts, results
 
 
-def test_generate_report(mocker, mock_config, dummy_dfs):
+def test_generate_report(mocker: Any, mock_config: Any, dummy_dfs: Any) -> None:
     raw_counts, metadata, norm_counts, results = dummy_dfs
     
     # Mock plotting functions so we don't actually draw plots during tests
@@ -122,7 +123,7 @@ def test_generate_report(mocker, mock_config, dummy_dfs):
     assert 'alt="' in html
 
 
-def test_report_no_dataset_limitations(mocker, mock_config, dummy_dfs):
+def test_report_no_dataset_limitations(mocker: Any, mock_config: Any, dummy_dfs: Any) -> None:
     # Test that the dataset limitations section is omitted if empty
     mock_config.dataset_limitations = []
     raw_counts, metadata, norm_counts, results = dummy_dfs

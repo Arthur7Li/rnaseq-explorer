@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 import pytest
 from pandera.errors import SchemaError
@@ -6,7 +8,7 @@ from rnax.validation import validate_counts_schema, validate_metadata_schema
 
 
 @pytest.fixture
-def valid_counts():
+def valid_counts() -> Any:
     return pd.DataFrame({
         "gene_id": ["gene1", "gene2", "gene3"],
         "sample1": [10, 20, 0],
@@ -15,7 +17,7 @@ def valid_counts():
 
 
 @pytest.fixture
-def valid_metadata():
+def valid_metadata() -> Any:
     return pd.DataFrame({
         "sample_id": ["sample1", "sample2"],
         "condition": ["treated", "control"],
@@ -23,17 +25,17 @@ def valid_metadata():
     })
 
 
-def test_valid_counts(valid_counts):
+def test_valid_counts(valid_counts: Any) -> None:
     validated = validate_counts_schema(valid_counts, "gene_id")
     assert validated.shape == (3, 3)
 
 
-def test_counts_missing_gene_id(valid_counts):
+def test_counts_missing_gene_id(valid_counts: Any) -> None:
     with pytest.raises(ValueError, match="not found"):
         validate_counts_schema(valid_counts, "wrong_gene_id_col")
 
 
-def test_counts_negative_values(valid_counts):
+def test_counts_negative_values(valid_counts: Any) -> None:
     bad_counts = valid_counts.copy()
     bad_counts.loc[0, "sample1"] = -5
     
@@ -41,7 +43,7 @@ def test_counts_negative_values(valid_counts):
         validate_counts_schema(bad_counts, "gene_id")
 
 
-def test_counts_float_values(valid_counts):
+def test_counts_float_values(valid_counts: Any) -> None:
     bad_counts = valid_counts.copy()
     bad_counts["sample1"] = bad_counts["sample1"].astype(float)
     bad_counts.loc[0, "sample1"] = 5.5
@@ -51,7 +53,7 @@ def test_counts_float_values(valid_counts):
         validate_counts_schema(bad_counts, "gene_id")
 
 
-def test_counts_duplicate_genes(valid_counts):
+def test_counts_duplicate_genes(valid_counts: Any) -> None:
     bad_counts = valid_counts.copy()
     bad_counts.loc[0, "gene_id"] = "gene2"
     
@@ -59,7 +61,7 @@ def test_counts_duplicate_genes(valid_counts):
         validate_counts_schema(bad_counts, "gene_id")
 
 
-def test_valid_metadata(valid_metadata):
+def test_valid_metadata(valid_metadata: Any) -> None:
     validated = validate_metadata_schema(
         valid_metadata, 
         ["sample1", "sample2"], 
@@ -69,13 +71,13 @@ def test_valid_metadata(valid_metadata):
     assert validated.shape == (2, 3)
 
 
-def test_metadata_missing_sample_id():
+def test_metadata_missing_sample_id() -> None:
     df = pd.DataFrame({"condition": ["treated"]})
     with pytest.raises(ValueError, match="Metadata must contain"):
         validate_metadata_schema(df, ["sample1"], "condition")
 
 
-def test_metadata_mismatched_samples(valid_metadata):
+def test_metadata_mismatched_samples(valid_metadata: Any) -> None:
     with pytest.raises(SchemaError, match="exactly match"):
         # Missing sample2
         validate_metadata_schema(valid_metadata, ["sample1"], "condition")
@@ -85,19 +87,19 @@ def test_metadata_mismatched_samples(valid_metadata):
         validate_metadata_schema(valid_metadata, ["sample1", "sample2", "sample3"], "condition")
 
 
-def test_metadata_missing_condition(valid_metadata):
+def test_metadata_missing_condition(valid_metadata: Any) -> None:
     bad_meta = valid_metadata.drop(columns=["condition"])
     with pytest.raises(SchemaError):
         validate_metadata_schema(bad_meta, ["sample1", "sample2"], "condition")
 
 
-def test_metadata_missing_block_column(valid_metadata):
+def test_metadata_missing_block_column(valid_metadata: Any) -> None:
     bad_meta = valid_metadata.drop(columns=["batch"])
     with pytest.raises(SchemaError):
         validate_metadata_schema(bad_meta, ["sample1", "sample2"], "condition", "batch")
 
 
-def test_metadata_nan_condition(valid_metadata):
+def test_metadata_nan_condition(valid_metadata: Any) -> None:
     bad_meta = valid_metadata.copy()
     bad_meta.loc[0, "condition"] = None
     with pytest.raises(SchemaError):

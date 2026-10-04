@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 import pytest
 
@@ -6,7 +8,7 @@ from rnax.pipeline.deseq import filter_low_counts, run_deseq2
 
 
 @pytest.fixture
-def sample_counts():
+def sample_counts() -> Any:
     return pd.DataFrame({
         "gene1": [10, 15, 20, 25],
         "gene2": [0, 0, 1, 0],
@@ -16,7 +18,7 @@ def sample_counts():
 
 
 @pytest.fixture
-def sample_metadata():
+def sample_metadata() -> Any:
     return pd.DataFrame({
         "sample_id": ["sample1", "sample2", "sample3", "sample4"],
         "condition": ["A", "A", "B", "B"],
@@ -25,7 +27,7 @@ def sample_metadata():
 
 
 @pytest.fixture
-def mock_config():
+def mock_config() -> Any:
     config = AnalysisConfig.model_construct()
     config.filtering = type("obj", (object,), {"minimum_count": 5, "minimum_samples": 2})()
     config.design = type("obj", (object,), {
@@ -37,7 +39,7 @@ def mock_config():
     return config
 
 
-def test_filter_low_counts(sample_counts, caplog):
+def test_filter_low_counts(sample_counts: Any, caplog: Any) -> None:
     # min_count=5, min_samples=2
     with caplog.at_level("INFO"):
         res = filter_low_counts(sample_counts, min_count=5, min_samples=2)
@@ -58,7 +60,7 @@ def test_filter_low_counts(sample_counts, caplog):
     assert "Filtering: 4 genes → 3 genes (kept genes with >= 5 counts in >= 2 samples)" in caplog.text
 
 
-def test_run_deseq2_mocked(mocker, sample_counts, sample_metadata, mock_config):
+def test_run_deseq2_mocked(mocker: Any, sample_counts: Any, sample_metadata: Any, mock_config: Any) -> None:
     # Mock PyDESeq2 to avoid slow computations during unit testing
     mock_dds = mocker.patch("rnax.pipeline.deseq.DeseqDataSet")
     mock_dds_instance = mock_dds.return_value

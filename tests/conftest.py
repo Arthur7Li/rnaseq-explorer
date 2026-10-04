@@ -1,17 +1,18 @@
 import tempfile
 from pathlib import Path
+from typing import Any
 
 import pytest
 import yaml
 
 
 @pytest.fixture
-def temp_dir():
+def temp_dir() -> Any:
     with tempfile.TemporaryDirectory() as tmpdirname:
         yield Path(tmpdirname)
 
 @pytest.fixture
-def valid_config_dict():
+def valid_config_dict() -> Any:
     return {
         "input": {
             "counts": "data/counts.csv",
@@ -38,7 +39,7 @@ def valid_config_dict():
     }
 
 @pytest.fixture
-def valid_config_file(temp_dir, valid_config_dict):
+def valid_config_file(temp_dir: Any, valid_config_dict: Any) -> Any:
     import pandas as pd
     counts_path = temp_dir / "counts.csv"
     meta_path = temp_dir / "meta.csv"

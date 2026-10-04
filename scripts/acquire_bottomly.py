@@ -26,7 +26,7 @@ def compute_sha256(filepath: Path) -> str:
             hasher.update(chunk)
     return hasher.hexdigest()
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Download the Bottomly validation dataset")
     parser.add_argument("--outdir", default="data/bottomly", help="Output directory")
     args = parser.parse_args()

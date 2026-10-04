@@ -134,3 +134,12 @@ Every entry uses this template:
 **Decision:** We adopted `pytest-snapshot` for golden-file testing of pipeline artifacts (specifically `results.csv` schema, `normalized_counts.csv` shape, and `report.html` section headings).
 **Rationale:** Standard assertions for large text files or data schemas become verbose and difficult to maintain. By utilizing a fixed random seed within our `AnalysisConfig` during testing, we ensure that PyDESeq2 produces entirely deterministic outputs. Snapshot testing allows us to trivially capture these outputs and bump them easily (`--snapshot-update`) when intentional changes are made.
 **Consequences:** Developers must run `pytest --snapshot-update` when making intentional changes that alter pipeline output schemas or report structure, and verify the resulting file diffs in version control.
+
+## [D-15] GEO Case Study Selection (Phase 12)
+**Date:** 2026-10-03
+**Context:** The "Outstanding" portfolio milestone mandates incorporating a curated, real-world case study from the NCBI Gene Expression Omnibus (GEO) to demonstrate public data hygiene and responsible interpretation.
+**Decision:** We selected **GSE324987** (Zebrafish neurexin double mutants).
+**Rationale:** This dataset perfectly meets all 8 selection criteria and triggers zero rejection criteria. It provides pristine, raw integer count tables in the supplementary files, preventing us from needing to perform costly FASTQ alignments. It has exactly 3 replicates per biological group, explicitly clear metadata matching column names, and a stable PMID (42362769). Most importantly, as an animal-model study using whole-brain tissue, it naturally invites discussion of meaningful scientific caveats (e.g., bulk tissue masking cell-type specific signals) without ever risking prohibited clinical or diagnostic language.
+**Considered but Rejected:**
+- GSE188391 (Mouse Melanoma): Rejected due to mismatch between the sample IDs in the provided counts table and the GEO metadata.
+- GSE319384 (Human Pancreatic Cancer PANC-1): Rejected because the study remains unpublished (missing PMID) despite having a clean counts matrix.

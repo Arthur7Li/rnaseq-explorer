@@ -1,10 +1,11 @@
 import hashlib
+from typing import Any
 
 from rnax.config import AnalysisConfig
 from rnax.manifest import _get_git_commit, _sha256, build_manifest
 
 
-def test_sha256(tmp_path):
+def test_sha256(tmp_path: Any) -> None:
     test_file = tmp_path / "test.txt"
     content = b"hello world"
     test_file.write_bytes(content)
@@ -13,7 +14,7 @@ def test_sha256(tmp_path):
     assert _sha256(test_file) == expected_hash
 
 
-def test_get_git_commit(mocker):
+def test_get_git_commit(mocker: Any) -> None:
     # Test successful git execution
     mock_run = mocker.patch("rnax.manifest.subprocess.run")
     mock_run.return_value.stdout = "abcdef123456\n"
@@ -29,7 +30,7 @@ def test_get_git_commit(mocker):
     assert _get_git_commit() is None
 
 
-def test_build_manifest(tmp_path, mocker):
+def test_build_manifest(tmp_path: Any, mocker: Any) -> None:
     # Create mock files
     config_file = tmp_path / "config.yaml"
     counts_file = tmp_path / "counts.csv"

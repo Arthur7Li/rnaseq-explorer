@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import pytest
 from typer.testing import CliRunner
@@ -7,7 +8,7 @@ from rnax.cli import app
 
 
 @pytest.fixture(scope="module")
-def setup_pasilla_test_data(tmp_path_factory):
+def setup_pasilla_test_data(tmp_path_factory: Any) -> Any:
     """
     Sets up a temporary directory with the pasilla configuration
     so we don't overwrite user's actual results/pasilla dir during testing.
@@ -56,7 +57,7 @@ def setup_pasilla_test_data(tmp_path_factory):
 
 
 @pytest.mark.slow
-def test_pasilla_integration(setup_pasilla_test_data):
+def test_pasilla_integration(setup_pasilla_test_data: Any) -> None:
     """
     End-to-end integration test using the Pasilla test dataset.
     This test runs the full PyDESeq2 pipeline and checks all outputs.
@@ -96,7 +97,7 @@ def test_pasilla_integration(setup_pasilla_test_data):
     assert "Threshold Interpretation" in html
 
 @pytest.fixture(scope="module")
-def setup_bottomly_test_data(tmp_path_factory):
+def setup_bottomly_test_data(tmp_path_factory: Any) -> Any:
     temp_dir = tmp_path_factory.mktemp("bottomly_integration")
     out_dir = temp_dir / "results"
     
@@ -136,7 +137,7 @@ def setup_bottomly_test_data(tmp_path_factory):
 
 
 @pytest.mark.slow
-def test_bottomly_integration(setup_bottomly_test_data):
+def test_bottomly_integration(setup_bottomly_test_data: Any) -> None:
     if not Path("data/bottomly/counts.csv").exists():
         pytest.skip("Bottomly test data not found. Run scripts/acquire_bottomly.py first.")
         
@@ -165,3 +166,62 @@ def test_bottomly_integration(setup_bottomly_test_data):
     html = report_path.read_text()
     assert "Bottomly Integration Test Title" in html
     assert "Pre-filtering Summary" in html
+
+@pytest.fixture
+def setup_geo_test_data(tmp_path: Path) -> Any:
+    import yaml
+    out_dir = tmp_path / "geo_results"
+    config_path = tmp_path / "geo_test.yaml"
+    
+    config_content = {
+        "input": {
+            "counts": "data/geo-case-study/counts.csv",
+            "metadata": "data/geo-case-study/metadata.csv",
+            "gene_id_column": "gene_id"
+        },
+        "design": {
+            "condition_column": "condition",
+            "reference_level": "wild_type",
+            "comparison_level": "nrxn1_knockout"
+        },
+        "filtering": {
+            "minimum_count": 10,
+            "minimum_samples": 3
+        },
+        "thresholds": {
+            "fdr": 0.05,
+            "absolute_log2_fold_change": 1.0,
+            "top_n_genes": 10
+        },
+        "output": {
+            "directory": str(out_dir),
+            "report_title": "GEO Integration Test"
+        },
+        "annotation": {
+            "enabled": False
+        }
+    }
+    
+    with open(config_path, "w") as f:
+        yaml.dump(config_content, f)
+        
+    return config_path, out_dir
+
+
+@pytest.mark.slow
+def test_geo_integration(setup_geo_test_data: Any) -> None:
+    if not Path("data/geo-case-study/counts.csv").exists():
+        pytest.skip("GEO test data not found. Run scripts/acquire_geo_case_study.py first.")
+        
+    config_path, out_dir = setup_geo_test_data
+    
+    runner = CliRunner()
+    result = runner.invoke(app, ["analyze", "--config", str(config_path), "--no-sensitivity"])
+    
+    assert result.exit_code == 0
+    assert (out_dir / "results.csv").exists()
+    assert (out_dir / "normalized_counts.csv").exists()
+    assert (out_dir / "report.html").exists()
+    
+    html_content = (out_dir / "report.html").read_text()
+    assert "GEO Integration Test" in html_content

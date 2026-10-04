@@ -1,3 +1,5 @@
+from typing import Any
+
 import yaml
 from typer.testing import CliRunner
 
@@ -13,12 +15,12 @@ def strip_ansi(text: str) -> str:
     ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
     return ansi_escape.sub('', text)
 
-def test_analyze_help():
+def test_analyze_help() -> None:
     result = runner.invoke(app, ["analyze", "--help"])
     assert result.exit_code == 0
     assert "Run the exploratory RNA-seq differential expression workflow" in strip_ansi(result.output)
 
-def test_analyze_with_valid_config(mocker, valid_config_file):
+def test_analyze_with_valid_config(mocker: Any, valid_config_file: Any) -> None:
     import pandas as pd
     mock_filtering = mocker.MagicMock()
     mock_results = pd.DataFrame({"padj": [0.01, 0.05], "log2FoldChange": [1.5, -2.0]})
@@ -28,13 +30,13 @@ def test_analyze_with_valid_config(mocker, valid_config_file):
     assert result.exit_code == 0
     assert "Successfully parsed configuration" in strip_ansi(result.output)
 
-def test_analyze_missing_config():
+def test_analyze_missing_config() -> None:
     result = runner.invoke(app, ["analyze"])
     # Typer will exit 2 on missing required arguments by default
     assert result.exit_code == 2
     assert "Missing option '--config'" in strip_ansi(result.output)
 
-def test_analyze_invalid_config(temp_dir):
+def test_analyze_invalid_config(temp_dir: Any) -> None:
     config_path = temp_dir / "bad.yaml"
     with open(config_path, "w") as f:
         yaml.dump({"invalid": "yes"}, f)
@@ -43,7 +45,7 @@ def test_analyze_invalid_config(temp_dir):
     assert result.exit_code == 1
     assert "Configuration validation error" in strip_ansi(result.output)
 
-def test_analyze_config_not_found():
+def test_analyze_config_not_found() -> None:
     result = runner.invoke(app, ["analyze", "--config", "does_not_exist.yaml"])
     assert result.exit_code == 2
     plain = strip_ansi(result.output).replace('\n', '').replace(' ', '')

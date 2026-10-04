@@ -29,7 +29,7 @@ def compute_sha256(filepath: Path) -> str:
             hasher.update(chunk)
     return hasher.hexdigest()
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Download the Pasilla test fixture dataset")
     parser.add_argument("--outdir", default="data/pasilla", help="Output directory")
     args = parser.parse_args()
