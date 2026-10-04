@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+title: "RNA-seq Explorer"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - given-names: Arthur
+    family-names: Li
+version: "1.0.0"
+date-released: "2026-10-03"
+url: "https://github.com/Arthur7Li/rnaseq-explorer"
+license: MIT
+keywords:
+  - RNA-seq
+  - differential expression
+  - bioinformatics
+  - reproducibility
