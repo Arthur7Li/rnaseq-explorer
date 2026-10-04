@@ -1,0 +1,32 @@
+input:
+  counts: data/geo-case-study/counts.csv
+  metadata: data/geo-case-study/metadata.csv
+  gene_id_column: gene_id
+
+design:
+  condition_column: condition
+  reference_level: wild_type
+  comparison_level: nrxn1_knockout
+
+filtering:
+  minimum_count: 10
+  minimum_samples: 3
+
+thresholds:
+  fdr: 0.05
+  absolute_log2_fold_change: 1.0
+  top_n_genes: 30
+
+output:
+  directory: results/geo-case-study
+  report_title: "Zebrafish Neurexin Knockout Analysis"
+
+annotation:
+  enabled: true
+  organism: danio_rerio
+  gene_sets: []
+
+dataset_limitations:
+  - "Bulk Tissue Masking: This dataset utilizes whole-brain bulk RNA sequencing. Because the brain is highly heterogeneous, cell-type specific transcriptional changes caused by neurexin deficiency may be diluted or masked entirely by the surrounding tissue matrix."
+  - "Non-Clinical Model: Danio rerio (zebrafish) is an established behavioral model, but these results strictly reflect fish neurobiology and do not directly map to human psychiatric or neurodevelopmental disorders."
+  - "Hypothesis Generation Only: This differential expression analysis highlights pathways perturbed by genetic knockout. It does not establish causal mechanisms for behavioral phenotypes."

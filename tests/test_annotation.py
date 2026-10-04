@@ -1,10 +1,11 @@
+from typing import Any
 
 import pandas as pd
 
 from rnax.pipeline.annotation import load_gene_annotations, run_enrichment
 
 
-def test_load_gene_annotations_success(tmp_path):
+def test_load_gene_annotations_success(tmp_path: Any) -> None:
     # create a mock annotation csv
     df = pd.DataFrame([
         {"gene_id": "G1", "gene_symbol": "Gene1", "description": "Desc1"},
@@ -20,7 +21,7 @@ def test_load_gene_annotations_success(tmp_path):
     assert annot.loc["G1", "gene_symbol"] == "Gene1"
     
 
-def test_load_gene_annotations_missing_or_unknown(tmp_path, caplog):
+def test_load_gene_annotations_missing_or_unknown(tmp_path: Any, caplog: Any) -> None:
     # Unknown organism
     annot = load_gene_annotations(["G1"], "alien", tmp_path)
     assert annot.empty
@@ -34,7 +35,7 @@ def test_load_gene_annotations_missing_or_unknown(tmp_path, caplog):
     assert "not found" in caplog.text
 
 
-def test_run_enrichment_insufficient_genes(caplog):
+def test_run_enrichment_insufficient_genes(caplog: Any) -> None:
     df = pd.DataFrame({
         "gene_symbol": ["G1", "G2"],
         "padj": [0.01, 0.04]
@@ -44,7 +45,7 @@ def test_run_enrichment_insufficient_genes(caplog):
     assert "requires at least 5" in caplog.text
 
 
-def test_run_enrichment_missing_symbol(caplog):
+def test_run_enrichment_missing_symbol(caplog: Any) -> None:
     df = pd.DataFrame({
         "padj": [0.01, 0.04, 0.01, 0.01, 0.01]
     })
@@ -53,7 +54,7 @@ def test_run_enrichment_missing_symbol(caplog):
     assert "requires 'gene_symbol' column" in caplog.text
 
 
-def test_run_enrichment_mocked(mocker, tmp_path):
+def test_run_enrichment_mocked(mocker: Any, tmp_path: Any) -> None:
     # Create a dummy GMT file so it passes the local file check
     gmt_file = tmp_path / "mock.gmt"
     gmt_file.write_text("TERM\t\tG1\tG2\n")

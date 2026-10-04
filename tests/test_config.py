@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import pytest
 import yaml
@@ -7,7 +8,7 @@ from pydantic import ValidationError
 from rnax.config import AnalysisConfig
 
 
-def test_valid_config_parsing(valid_config_file):
+def test_valid_config_parsing(valid_config_file: Any) -> None:
     config = AnalysisConfig.from_yaml(valid_config_file)
     assert config.input.gene_id_column == "gene_id"
     assert config.design.condition_column == "condition"
@@ -15,7 +16,7 @@ def test_valid_config_parsing(valid_config_file):
     assert config.output.report_title == "Demo Analysis"
 
 
-def test_config_with_blocking_covariate(temp_dir, valid_config_dict):
+def test_config_with_blocking_covariate(temp_dir: Any, valid_config_dict: Any) -> None:
     valid_config_dict["design"]["paired_or_block_column"] = "cell_line"
     config_path = temp_dir / "blocked_config.yaml"
     with open(config_path, "w") as f:
@@ -25,7 +26,7 @@ def test_config_with_blocking_covariate(temp_dir, valid_config_dict):
     assert config.design.paired_or_block_column == "cell_line"
 
 
-def test_missing_required_fields(temp_dir, valid_config_dict):
+def test_missing_required_fields(temp_dir: Any, valid_config_dict: Any) -> None:
     del valid_config_dict["input"]["counts"]
     config_path = temp_dir / "invalid_config.yaml"
     with open(config_path, "w") as f:
@@ -36,7 +37,7 @@ def test_missing_required_fields(temp_dir, valid_config_dict):
     assert "counts" in str(exc_info.value)
 
 
-def test_invalid_fdr_threshold(temp_dir, valid_config_dict):
+def test_invalid_fdr_threshold(temp_dir: Any, valid_config_dict: Any) -> None:
     valid_config_dict["thresholds"]["fdr"] = 1.5
     config_path = temp_dir / "invalid_config.yaml"
     with open(config_path, "w") as f:
@@ -46,7 +47,7 @@ def test_invalid_fdr_threshold(temp_dir, valid_config_dict):
         AnalysisConfig.from_yaml(config_path)
 
 
-def test_extra_fields_forbidden(temp_dir, valid_config_dict):
+def test_extra_fields_forbidden(temp_dir: Any, valid_config_dict: Any) -> None:
     valid_config_dict["extra_field"] = "not allowed"
     config_path = temp_dir / "invalid_config.yaml"
     with open(config_path, "w") as f:
@@ -57,7 +58,7 @@ def test_extra_fields_forbidden(temp_dir, valid_config_dict):
     assert "extra_field" in str(exc_info.value)
 
 
-def test_parse_real_airway_config():
+def test_parse_real_airway_config() -> None:
     # Should successfully parse the committed airway.yaml
     repo_root = Path(__file__).parent.parent
     config_path = repo_root / "config" / "airway.yaml"

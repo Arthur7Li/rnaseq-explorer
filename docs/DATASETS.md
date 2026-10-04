@@ -52,3 +52,11 @@ contrast: dexamethasone - untreated
 - Exported input is raw non-negative integer gene-level counts.
 - The report states the model, contrast direction, source, and exploratory limitations.
 - The tool does not use FPKM data as input to the count-based differential-expression path.
+
+### GEO Case Study: Zebrafish Neurexin Knockouts (GSE324987)
+
+- **Source:** [NCBI GEO GSE324987](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE324987)
+- **Publication:** PMID: 42362769
+- **Description:** Whole-brain RNA sequencing of wild-type zebrafish controls versus neurexin-1 double-knockout mutants (1a1bT). This dataset serves as our "Outstanding" milestone case study to demonstrate public data hygiene, transparent provenance tracking, and the responsible communication of biological limitations (e.g., bulk tissue masking) without clinical claims.
+- **Location:** `data/geo-case-study/`
+- **Acquisition:** Retrieved automatically from GEO via `scripts/acquire_geo_case_study.py`.

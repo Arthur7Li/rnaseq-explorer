@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 COUNTS_URL = "https://raw.githubusercontent.com/Bioconductor/BiocWorkshops/master/100_Morgan_RBiocForAll/airway_counts.csv"
 METADATA_URL = "https://raw.githubusercontent.com/Bioconductor/BiocWorkshops/master/100_Morgan_RBiocForAll/airway_colData.csv"
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Download the Airway demo dataset")
     parser.add_argument("--outdir", default="data/airway", help="Output directory")
     args = parser.parse_args()
